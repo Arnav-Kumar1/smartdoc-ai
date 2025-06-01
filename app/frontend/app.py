@@ -5,7 +5,7 @@ import os
 import time
 from typing import Dict, List, Optional, Tuple
 from datetime import datetime, timezone
-import pytz  # You'll need to add pytz to requirements.txt
+import pytz
 
 
 from frontend_utils import export_summary_as_txt
