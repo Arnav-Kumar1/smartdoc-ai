@@ -1,0 +1,41 @@
+version: '3.11'
+
+services:
+  backend:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: smartdoc-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./app/data:/app/data  # Mount from host's app/data
+    env_file:
+      - .env
+    environment:
+      - DATA_PATH=/app/data
+
+  user_ui:
+    build:
+      context: ./app/frontend  # Correct path to frontend
+    container_name: smartdoc-user-ui
+    ports:
+      - "8501:8501"
+    depends_on:
+      - backend
+    environment:
+      - API_URL=http://backend:8000
+
+  admin_dashboard:
+    build:
+      context: ./app/admin_dashboard  # Correct path to admin
+    container_name: smartdoc-admin
+    ports:
+      - "8502:8501"
+    depends_on:
+      - backend
+    environment:
+      - API_URL=http://backend:8000
+
+volumes:
+  data:
