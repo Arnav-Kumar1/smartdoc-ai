@@ -12,7 +12,7 @@ SQLALCHEMY_DATABASE_URL = f"sqlite:///{os.path.join(DB_DIR, 'database.db')}"
 
 # Connect to the database with additional parameters
 engine = create_engine(
-    DATABASE_URL,
+    SQLALCHEMY_DATABASE_URL,
     echo=True,
     connect_args={"check_same_thread": False}
 )
