@@ -368,9 +368,9 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Then continue with your existing code...
 def load_css():
-    with open("styles.css") as f:
+    css_path = os.path.join(os.path.dirname(__file__), "styles.css")
+    with open(css_path) as f:
         st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
 def render_login_page():
