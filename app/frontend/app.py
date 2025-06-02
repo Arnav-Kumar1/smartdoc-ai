@@ -23,7 +23,7 @@ def error_boundary():
 
 # API endpoint
 
-API_URL = os.getenv("API_URL", "http://localhost:8501")
+API_URL = os.getenv("API_URL", "https://smartdoc-ai-production.up.railway.app")
 
 # Session state initialization
 if "authenticated" not in st.session_state:
