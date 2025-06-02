@@ -151,7 +151,6 @@ async def vectorize_document(filename: str, db: Session = Depends(get_db), curre
             return {"message": "Document already vectorized", "filename": filename}
 
         vector_store_path = os.path.join(VECTOR_STORE_DIR, file_hash)
-
         os.makedirs(vector_store_path, exist_ok=True)
 
         # --- Text extraction ---
@@ -184,14 +183,22 @@ async def vectorize_document(filename: str, db: Session = Depends(get_db), curre
 
         # --- Embedding & FAISS ---
         try:
-            logging.info("[VECTORIZE] Generating embeddings")
-            embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+            logging.info("[VECTORIZE] Loading HuggingFace embedding model")
+            try:
+                embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+                logging.info("[VECTORIZE] Embedding model loaded successfully")
+            except Exception as embed_err:
+                logging.critical("[VECTORIZE] FAILED TO LOAD EMBEDDING MODEL")
+                logging.critical(traceback.format_exc())
+                raise HTTPException(status_code=500, detail="Failed to load HuggingFace embedding model")
 
             logging.info("[VECTORIZE] Creating FAISS vector store")
             vector_db = FAISS.from_texts(texts=texts, embedding=embeddings, metadatas=metadatas)
+            logging.info("[VECTORIZE] FAISS store created")
 
-            logging.info("[VECTORIZE] Saving FAISS vector store")
+            logging.info("[VECTORIZE] Saving FAISS vector store to %s", vector_store_path)
             vector_db.save_local(vector_store_path)
+            logging.info("[VECTORIZE] FAISS store saved")
         except Exception as e:
             logging.error("[VECTORIZE] Embedding or vector store creation failed")
             logging.error(traceback.format_exc())
