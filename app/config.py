@@ -5,10 +5,14 @@ def load_env_vars():
     load_dotenv()
 
 # Define base directories
-BASE_DATA_DIR = os.path.join("app", "data")
-UPLOAD_DIR = os.path.join(BASE_DATA_DIR, "uploaded_files")
-VECTOR_STORE_DIR = os.path.join(BASE_DATA_DIR, "vector_store")
-DB_DIR = os.path.join(BASE_DATA_DIR, "db")
+# Change from app/data to root data directory
+# Base data directory at project root
+BASE_DATA_DIR = os.path.join(os.getcwd(), 'data')
+
+# Subdirectories under data
+UPLOAD_DIR = os.path.join(BASE_DATA_DIR, 'uploaded_files')
+VECTOR_STORE_DIR = os.path.join(BASE_DATA_DIR, 'vector_store')
+DB_DIR = os.path.join(BASE_DATA_DIR, 'db')
 
 # Create all required directories
 def create_required_directories():
