@@ -13,6 +13,10 @@ from app.utils.extractor import extract_text_from_pdf, extract_text_from_docx
 from typing import Optional
 from app.config import VECTOR_STORE_DIR
 
+import traceback
+import hashlib
+import logging
+
 # Initialize the FastAPI Router
 router = APIRouter()
 
