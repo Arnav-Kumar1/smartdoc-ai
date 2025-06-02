@@ -105,7 +105,7 @@ router = APIRouter()
 
 #     return {"message": "Document vectorized successfully", "filename": filename}
 
-@app.post("/vectorize/{filename}")
+@router.post("/vectorize/{filename}")
 async def vectorize_file(filename: str):
     print(f"Simulating vectorization for {filename}")
     return {"status": "stub success"}
