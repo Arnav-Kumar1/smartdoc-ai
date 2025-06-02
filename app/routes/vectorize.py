@@ -150,7 +150,8 @@ async def vectorize_document(filename: str, db: Session = Depends(get_db), curre
             logging.info("[VECTORIZE] Document already vectorized by this user")
             return {"message": "Document already vectorized", "filename": filename}
 
-        vector_store_path = os.path.join("vectorstore", file_hash)
+        vector_store_path = os.path.join(VECTOR_STORE_DIR, file_hash)
+
         os.makedirs(vector_store_path, exist_ok=True)
 
         # --- Text extraction ---
