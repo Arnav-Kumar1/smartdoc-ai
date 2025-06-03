@@ -27,7 +27,7 @@ def get_embedding_model() -> SentenceTransformer:
     global _embedding_model
     if _embedding_model is None:
         logging.info("[VECTORIZE] Loading smaller embedding model: paraphrase-MiniLM-L3-v2")
-        _embedding_model = SentenceTransformer("paraphrase-MiniLM-L3-v2")
+        _embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
         logging.info("[VECTORIZE] Embedding model loaded")
     return _embedding_model
 
