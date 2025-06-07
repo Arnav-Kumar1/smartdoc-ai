@@ -80,8 +80,8 @@ proto-plus==1.26.1
 protobuf==5.29.4
 pyarrow==20.0.0
 
-pyasn1>=0.6.1,<0.7.0
-pyasn1_modules==0.4.2
+# pyasn1>=0.6.1,<0.7.0
+# pyasn1_modules==0.4.2
 
 pycparser==2.22
 pydantic==2.11.4
@@ -104,7 +104,7 @@ requests==2.32.3
 requests-toolbelt==1.0.0
 rpds-py==0.24.0
 
-rsa>=4.9 
+# rsa>=4.9 
 
 safetensors==0.5.3
 scikit-learn==1.6.1
