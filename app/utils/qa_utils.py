@@ -1,11 +1,12 @@
 import os
 from typing import Tuple, List, Dict, Any
 
-from langchain_community.embeddings import HuggingFaceEmbeddings
+# from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
 from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_huggingface import HuggingFaceEmbeddings  # Updated import
 
 from app import config
 from app.config import EMBEDDING_MODEL_NAME, EMBEDDING_DIM
