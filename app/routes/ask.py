@@ -62,7 +62,7 @@ async def qa_query(payload: QAModel, db: Session = Depends(get_db), current_user
     vector_store_path = os.path.join(VECTOR_STORE_DIR, document.file_hash)
 
     try:
-        vector_store = load_vector_store(vector_store_path)
+        vector_store = load_vector_store(vector_store_path)  # Now matches signature
         retriever = setup_retriever(vector_store)
         llm = get_llm()
 
@@ -84,5 +84,20 @@ async def qa_query(payload: QAModel, db: Session = Depends(get_db), current_user
 
     except FileNotFoundError as fnf:
         raise HTTPException(status_code=404, detail=str(fnf))
+    try:
+        answer, sources = process_qa_request(
+            document_id=document.id,
+            query=payload.question,
+            filename=document.filename,
+            file_hash=document.file_hash
+        )
+        return {"answer": answer, "sources": sources}
+    except RuntimeError as e:
+        logger.error(f"Q&A failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Q&A failed: {str(e)}")
+        logger.error(f"Q&A failed: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Q&A failed: {str(e)}"
+        )

@@ -7,6 +7,10 @@ from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
 from langchain_google_genai import ChatGoogleGenerativeAI
 
+from app import config
+from app.config import EMBEDDING_MODEL_NAME, EMBEDDING_DIM
+import logging
+logger = logging.getLogger(__name__)
 # Prompt template
 QA_PROMPT = PromptTemplate.from_template("""
 You are a helpful AI assistant. Answer the user's question using ONLY the following context from a document.
@@ -22,14 +26,41 @@ Rules:
 - Be precise and concise.
 """)
 
-def load_vector_store(vector_store_path: str):
-    """Loads the FAISS vector store from disk."""
-    if not os.path.exists(vector_store_path):
-        raise FileNotFoundError("Vector store not found. Please vectorize the document first.")
 
-    embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
-    vector_store = FAISS.load_local(vector_store_path, embeddings, allow_dangerous_deserialization=True)
-    return vector_store
+
+# Replace hardcoded model name with config reference
+embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL_NAME)
+
+# Update vector store loading with dimension check
+def load_vector_store(file_hash: str):
+    vector_path = os.path.join(config.VECTOR_STORE_DIR, file_hash)
+    
+    if not os.path.exists(vector_path):
+        os.makedirs(vector_path)
+        return FAISS.from_texts([""], embeddings)
+        
+    try:
+        vector_store = FAISS.load_local(vector_path, embeddings)
+        if vector_store.index.d != EMBEDDING_DIM:  # Use config dimension
+            raise ValueError(f"Dimension mismatch: Expected {EMBEDDING_DIM}, got {vector_store.index.d}")
+        return vector_store
+    except Exception as e:
+        logger.error(f"Vector store load failed: {str(e)}")
+        return FAISS.from_texts([""], embeddings, allow_dangerous_deserialization=True)
+
+
+def load_vector_store(vector_store_path):  # Add parameter
+    vector_store_dir = vector_store_path  # Use passed parameter instead of config
+    embeddings = HuggingFaceEmbeddings(model_name=config.EMBEDDING_MODEL_NAME)
+    
+    if os.path.exists(vector_store_dir):
+        return FAISS.load_local(
+            folder_path=vector_store_dir,
+            embeddings=embeddings,
+            allow_dangerous_deserialization=True
+        )
+    return FAISS.from_texts([""], embeddings)
+
 
 def setup_retriever(vector_store) -> Any:
     """Returns a configured retriever with MMR."""
@@ -50,18 +81,25 @@ def build_qa_chain(llm, retriever) -> RetrievalQA:
     )
 
 def run_qa_chain(chain: RetrievalQA, question: str) -> Tuple[str, List[Dict[str, str]]]:
-    result = chain({"query": question})
-    answer = result["result"]
-    source_docs = result.get("source_documents", [])
-
-    sources = []
-    for doc in source_docs:
-        sources.append({
-            "chunk_id": doc.metadata.get("chunk_id", -1),  # fallback to -1 if not present
-            "content": doc.page_content[:300]
-        })
-
-    return answer, sources
+    try:
+        result = chain({"query": question})
+        
+        if "result" not in result:
+            raise ValueError("Missing 'result' in QA chain response")
+            
+        answer = result["result"]
+        source_docs = result.get("source_documents", [])
+        
+        sources = []
+        for doc in source_docs:
+            sources.append({
+                "chunk_id": doc.metadata.get("chunk_id", -1),
+                "page_content": doc.page_content[:200] + "..."
+            })
+        return answer, sources
+    except Exception as e:
+        logger.error(f"QA chain failed: {str(e)}")
+        raise RuntimeError(f"QA processing error: {str(e)}")
 
 
 

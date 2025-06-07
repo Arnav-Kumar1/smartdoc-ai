@@ -5,7 +5,7 @@ import os
 import time
 from typing import Dict, List, Optional, Tuple
 from datetime import datetime, timezone
-import pytz
+import pytz  # You'll need to add pytz to requirements.txt
 
 
 from frontend_utils import export_summary_as_txt
@@ -22,8 +22,7 @@ def error_boundary():
         st.stop()
 
 # API endpoint
-
-API_URL = os.getenv("API_URL", "https://smartdoc-ai-production.up.railway.app")
+API_URL = "http://localhost:8000"
 
 # Session state initialization
 if "authenticated" not in st.session_state:
@@ -368,10 +367,15 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# Then continue with your existing code...
 def load_css():
-    css_path = os.path.join(os.path.dirname(__file__), "styles.css")
-    with open(css_path) as f:
+    with open("styles.css") as f:
         st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
+def load_css():
+    with open('app/frontend/styles.css') as f:
+        st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+
 
 def render_login_page():
     """Render the login page"""
@@ -615,7 +619,7 @@ def render_main_app():
                     st.download_button(
                         label="⬇️ Export Summary as TXT",
                         data=export_summary_as_txt(doc.get('summary', ''), doc.get('filename', f"document_{doc['id']}.txt")),
-                        file_name=f"summary_{doc.get('filename', 'document_' + str(doc['id']))}.txt",
+                        file_name=f"summary_{doc.get('filename', f'document_{doc['id']}')}.txt",
                         mime="text/plain",
                         key=f"export_sum_{doc['id']}"
                     )

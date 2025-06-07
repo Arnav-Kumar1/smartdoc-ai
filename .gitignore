@@ -1,1 +1,12 @@
+smart_env
 .env
+data/
+.git/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+Dockerfile
+docker-compose*
+README.md

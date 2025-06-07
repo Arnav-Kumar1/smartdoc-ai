@@ -12,6 +12,7 @@ from langchain.chains import VectorDBQA
 from app.utils.extractor import extract_text_from_pdf, extract_text_from_docx
 from typing import Optional
 from app.config import VECTOR_STORE_DIR
+from app.config import EMBEDDING_MODEL_NAME
 
 
 # Initialize the FastAPI Router
@@ -88,7 +89,7 @@ async def vectorize_document(filename: str, db: Session = Depends(get_db), curre
 
     # Generate embeddings using HuggingFace
     print("[DEBUG] Generating embeddings")
-    embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+    embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL_NAME)
 
     # Create FAISS vector store
     print("[DEBUG] Creating FAISS vector store")
