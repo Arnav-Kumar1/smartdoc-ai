@@ -27,8 +27,11 @@ Rules:
 """)
 
 def get_llm() -> Any:
-    """Returns the Gemini model instance."""
-    return ChatGoogleGenerativeAI(model="gemini-1.5-flash-latest", temperature=0.3)
+    return ChatGoogleGenerativeAI(
+        model="gemini-1.5-flash-latest",
+        temperature=0.3,
+        google_api_key=os.getenv("GEMINI_API_KEY")
+    )
 
 def build_qa_chain(llm, context: str) -> RetrievalQA:
     """Builds a RetrievalQA chain with injected context."""
