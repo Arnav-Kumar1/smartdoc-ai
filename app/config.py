@@ -7,10 +7,7 @@ def load_env_vars():
 # Define base directories
 # Change from app/data to root data directory
 
-
-# Lock to specific embedding model
-EMBEDDING_MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
-EMBEDDING_DIM = 384
+TOP_K_CHUNKS = 5  # You can tweak this later
 
 # Base data directory at project root
 BASE_DATA_DIR = os.path.join(os.getcwd(), 'data')

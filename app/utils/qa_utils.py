@@ -1,16 +1,16 @@
 import os
+import logging
+import joblib
+import numpy as np
 from typing import Tuple, List, Dict, Any
-
-from langchain_community.embeddings import HuggingFaceEmbeddings
-from langchain_community.vectorstores import FAISS
+from sklearn.metrics.pairwise import cosine_similarity
+from app.config import VECTOR_STORE_DIR, TOP_K_CHUNKS
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
 from langchain_google_genai import ChatGoogleGenerativeAI
 
-from app import config
-from app.config import EMBEDDING_MODEL_NAME, EMBEDDING_DIM
-import logging
 logger = logging.getLogger(__name__)
+
 # Prompt template
 QA_PROMPT = PromptTemplate.from_template("""
 You are a helpful AI assistant. Answer the user's question using ONLY the following context from a document.
@@ -26,90 +26,67 @@ Rules:
 - Be precise and concise.
 """)
 
-
-
-# Replace hardcoded model name with config reference
-embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL_NAME)
-
-# Update vector store loading with dimension check
-def load_vector_store(file_hash: str):
-    vector_path = os.path.join(config.VECTOR_STORE_DIR, file_hash)
-    
-    if not os.path.exists(vector_path):
-        os.makedirs(vector_path)
-        return FAISS.from_texts([""], embeddings)
-        
-    try:
-        vector_store = FAISS.load_local(vector_path, embeddings)
-        if vector_store.index.d != EMBEDDING_DIM:  # Use config dimension
-            raise ValueError(f"Dimension mismatch: Expected {EMBEDDING_DIM}, got {vector_store.index.d}")
-        return vector_store
-    except Exception as e:
-        logger.error(f"Vector store load failed: {str(e)}")
-        return FAISS.from_texts([""], embeddings, allow_dangerous_deserialization=True)
-
-
-def load_vector_store(vector_store_path):  # Add parameter
-    vector_store_dir = vector_store_path  # Use passed parameter instead of config
-    embeddings = HuggingFaceEmbeddings(model_name=config.EMBEDDING_MODEL_NAME)
-    
-    if os.path.exists(vector_store_dir):
-        return FAISS.load_local(
-            folder_path=vector_store_dir,
-            embeddings=embeddings,
-            allow_dangerous_deserialization=True
-        )
-    return FAISS.from_texts([""], embeddings)
-
-
-def setup_retriever(vector_store) -> Any:
-    """Returns a configured retriever with MMR."""
-    return vector_store.as_retriever(search_type="mmr", search_kwargs={"k": 10})
-
 def get_llm() -> Any:
-    """Returns the LLM instance (Gemini for now)."""
+    """Returns the Gemini model instance."""
     return ChatGoogleGenerativeAI(model="gemini-1.5-flash-latest", temperature=0.3)
 
-def build_qa_chain(llm, retriever) -> RetrievalQA:
-    """Constructs a RetrievalQA chain with custom prompt."""
-    return RetrievalQA.from_chain_type(
-        llm=llm,
-        retriever=retriever,
-        chain_type="stuff",
-        chain_type_kwargs={"prompt": QA_PROMPT},
-        return_source_documents=True
-    )
+def build_qa_chain(llm, context: str) -> RetrievalQA:
+    """Builds a RetrievalQA chain with injected context."""
+    from langchain.chains import LLMChain
+    from langchain_core.prompts import PromptTemplate as CorePromptTemplate
+    from langchain_core.language_models.chat_models import BaseChatModel
+    from langchain_core.runnables import RunnableLambda
+    prompt = CorePromptTemplate.from_template(QA_PROMPT.template)
+    return LLMChain(prompt=prompt, llm=llm)
 
-def run_qa_chain(chain: RetrievalQA, question: str) -> Tuple[str, List[Dict[str, str]]]:
+def load_vector_store(vector_store_path: str) -> Dict[str, Any]:
+    """Loads TF-IDF vectorizer, matrix, and chunk list from disk."""
     try:
-        result = chain({"query": question})
-        
-        if "result" not in result:
-            raise ValueError("Missing 'result' in QA chain response")
-            
-        answer = result["result"]
-        source_docs = result.get("source_documents", [])
-        
-        sources = []
-        for doc in source_docs:
-            sources.append({
-                "chunk_id": doc.metadata.get("chunk_id", -1),
-                "page_content": doc.page_content[:200] + "..."
-            })
+        vectorizer = joblib.load(os.path.join(vector_store_path, "vectorizer.pkl"))
+        matrix = joblib.load(os.path.join(vector_store_path, "matrix.pkl"))
+        chunks = joblib.load(os.path.join(vector_store_path, "chunks.pkl"))
+        return {
+            "vectorizer": vectorizer,
+            "matrix": matrix,
+            "chunks": chunks
+        }
+    except Exception as e:
+        logger.error(f"Failed to load vector store from {vector_store_path}: {str(e)}")
+        raise FileNotFoundError("Vector store files not found or corrupted.")
+
+def retrieve_top_k_chunks(vector_store: Dict[str, Any], question: str, k: int = TOP_K_CHUNKS) -> List[str]:
+    """Uses TF-IDF + cosine similarity to retrieve top-k most relevant chunks."""
+    vectorizer = vector_store["vectorizer"]
+    matrix = vector_store["matrix"]
+    chunks = vector_store["chunks"]
+
+    query_vector = vectorizer.transform([question])
+    similarities = cosine_similarity(query_vector, matrix).flatten()
+    top_indices = np.argsort(similarities)[::-1][:k]
+    top_chunks = [chunks[i] for i in top_indices]
+    return top_chunks
+
+def run_qa_chain(llm: Any, question: str, context_chunks: List[str]) -> Tuple[str, List[Dict[str, str]]]:
+    try:
+        context = "\n\n".join(context_chunks)
+        qa_chain = build_qa_chain(llm, context)
+        response = qa_chain.invoke({"question": question, "context": context})
+
+        answer = response.get("text", "").strip() or response.get("result", "").strip()
+        if not answer:
+            raise ValueError("Empty response from LLM")
+
+        sources = [
+            {"chunk_id": idx, "page_content": chunk[:200] + "..."}
+            for idx, chunk in enumerate(context_chunks)
+        ]
         return answer, sources
+
     except Exception as e:
         logger.error(f"QA chain failed: {str(e)}")
         raise RuntimeError(f"QA processing error: {str(e)}")
 
-
-
-
 def rewrite_queries(llm, original_question: str, num_rephrasals: int = 4) -> list[str]:
-    """
-    Generate multiple rephrased versions of the original question for better semantic retrieval.
-
-    Returns a list containing the original question plus num_rephrasals rephrased variants.
-    """
     prompt = f"""
     Rephrase the following question to optimize for document retrieval.
 
@@ -128,21 +105,18 @@ def rewrite_queries(llm, original_question: str, num_rephrasals: int = 4) -> lis
     try:
         response = llm.invoke(prompt)
         text = response.content.strip() if hasattr(response, "content") else response
-
-        # Parse the numbered list from response
         rephrased_questions = []
+
         for line in text.splitlines():
             line = line.strip()
             if not line:
                 continue
-            # Remove leading numbers and dots, e.g. "1. " or "2) "
             question = line.lstrip("0123456789. )").strip()
             if question:
                 rephrased_questions.append(question)
 
-        # Return original + rephrasals, ensuring no duplicates
         combined = [original_question] + [q for q in rephrased_questions if q.lower() != original_question.lower()]
-        return combined[:num_rephrasals + 1]  # max length = original + n rephrasals
+        return combined[:num_rephrasals + 1]
 
     except Exception:
         return [original_question]

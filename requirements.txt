@@ -1,40 +1,52 @@
-# Core dependencies
+# ----------------------
+# Core Web Dependencies
+# ----------------------
+authlib>=1.2.0
 fastapi>=0.95.0
-uvicorn>=0.22.0
-python-multipart>=0.0.6
 python-dotenv>=1.0.0
+python-multipart>=0.0.6
 pydantic>=2.0.0
-sqlmodel>=0.0.8
 SQLAlchemy>=2.0.0
+sqlmodel>=0.0.8
+starlette>=0.27.0
+uvicorn>=0.22.0
 
-# Document processing
-PyMuPDF>=1.22.0
-fpdf
-python-docx>=0.8.11
+# ----------------------
+# Authentication & Security
+# ----------------------
+itsdangerous>=2.1.2
+passlib[bcrypt]
+pyjwt>=2.6.0
+python-jose[cryptography]>=3.3.0
+
+# ----------------------
+# Document Processing
+# ----------------------
 filetype>=1.2.0
+fpdf
+PyMuPDF>=1.22.0
+python-docx>=0.8.11
 pytz
 
-# AI and ML
+# ----------------------
+# Machine Learning / NLP
+# ----------------------
 google-generativeai>=0.3.0
+joblib>=1.3.0
 langchain>=0.0.267
 langchain-community>=0.0.10
 langchain-core>=0.1.0
 langchain-google-genai>=0.0.5
-faiss-cpu>=1.7.0
-sentence-transformers>=2.2.0
-langchain-huggingface==0.2.0
 nltk>=3.8.0
+scikit-learn>=1.3.0
 
-# UI
-streamlit>=1.25.0
-
-# Utilities
+# ----------------------
+# Utilities & Data
+# ----------------------
 numpy>=1.24.0
 pandas>=2.0.0
-python-jose[cryptography]>=3.3.0
-passlib[bcrypt]
-# Add this to your existing requirements.txt
-starlette>=0.27.0
-authlib>=1.2.0
-itsdangerous>=2.1.2
-pyjwt>=2.6.0
+
+# ----------------------
+# User Interface
+# ----------------------
+streamlit>=1.25.0
