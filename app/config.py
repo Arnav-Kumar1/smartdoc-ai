@@ -7,7 +7,7 @@ def load_env_vars():
 # Define base directories
 # Change from app/data to root data directory
 
-TOP_K_CHUNKS = 5  # You can tweak this later
+TOP_K_CHUNKS = 20  # You can tweak this later
 
 # Base data directory at project root
 BASE_DATA_DIR = os.path.join(os.getcwd(), 'data')
