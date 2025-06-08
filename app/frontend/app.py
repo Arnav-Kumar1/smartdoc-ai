@@ -22,7 +22,8 @@ def error_boundary():
         st.stop()
 
 # API endpoint
-API_URL = "http://localhost:8000"
+API_URL = "https://smartdoc-ai-production.up.railway.app"
+
 
 # Session state initialization
 if "authenticated" not in st.session_state:
