@@ -9,8 +9,8 @@ from typing import Dict, List, Optional
 import streamlit as st
 
 # API endpoint
-# API_URL = "https://smartdoc-ai-production.up.railway.app"
-API_URL = "http://localhost:8000" # use this for locally testing
+API_URL = "https://smartdoc-ai-production.up.railway.app"
+# API_URL = "http://localhost:8000" # use this for locally testing
 DEBUG = False  # Set to True during development
 
 
