@@ -2,19 +2,19 @@ import requests
 from typing import List
 import io
 from streamlit import cache_data
-from auth_wrapper import authenticated_request
-import requests
+# from auth_wrapper import authenticated_request # This is not needed here anymore, as it's for backend internal
+import requests # Ensure requests is imported
 import time
 from typing import Dict, List, Optional
 import streamlit as st
 
 # API endpoint
-API_URL = "https://smartdoc-ai-production.up.railway.app"
-# API_URL = "http://localhost:8000" # use this for locally testing
+# API_URL = "https://smartdoc-ai-production.up.railway.app"
+API_URL = "http://localhost:8000" # use this for locally testing
 DEBUG = False  # Set to True during development
 
 
-@cache_data(ttl=300)  # <-- Add decorator with correct parameters
+@cache_data(ttl=300)
 def export_summary_as_txt(summary: str, filename: str) -> str:
     """Export summary as TXT"""
     txt_bytes = io.BytesIO()
@@ -22,8 +22,6 @@ def export_summary_as_txt(summary: str, filename: str) -> str:
     txt_bytes.write(summary.encode("utf-8"))
     txt_bytes.seek(0)
     return f"Summary for {filename}:\n\n{summary}"
-
-
 
 
 def login(email: str, password: str) -> bool:
@@ -67,9 +65,8 @@ def login(email: str, password: str) -> bool:
         return False
 
 
-
-
-def signup(email: str, username: str, password: str) -> bool:
+# MODIFIED: signup function now accepts gemini_api_key
+def signup(email: str, username: str, password: str, gemini_api_key: str) -> bool:
     """Register a new user"""
     try:
         # Normalize email to lowercase
@@ -78,9 +75,15 @@ def signup(email: str, username: str, password: str) -> bool:
         # Add debug prints
         print(f"Attempting signup with email: {normalized_email}, username: {username}")
         
+        # CHANGED: Use the /auth/signup endpoint and pass gemini_api_key
         response = requests.post(
             f"{API_URL}/auth/signup",
-            json={"email": normalized_email, "username": username, "password": password},
+            json={
+                "email": normalized_email,
+                "username": username,
+                "password": password,
+                "gemini_api_key": gemini_api_key # NEW: Pass the Gemini API key
+            },
         )
         
         # Add debug prints
@@ -88,21 +91,19 @@ def signup(email: str, username: str, password: str) -> bool:
             print(f"Signup response status: {response.status_code}")
             print(f"Signup response content: {response.text}")
         
-        # If response status is 500 but we know user was created
-        if response.status_code == 500:
-            # Check if user exists by trying to login
-            login_response = requests.post(
-                f"{API_URL}/auth/token",
-                data={"username": normalized_email, "password": password},
-            )
-            if login_response.status_code == 200:
-                st.success("Account created successfully! Please log in.")
-                return True
-        
-        # Handle other response codes
-        elif response.status_code in [200, 201]:
+        # Handle specific response codes
+        if response.status_code == 200: # FastAPI typically returns 200 for successful POST
             st.success("Account created successfully! Please log in.")
             return True
+        elif response.status_code == 400:
+            error_detail = response.json().get('detail', 'Unknown error')
+            if "email already registered" in error_detail.lower():
+                st.error("❗ Email already registered. Please use a different email or log in.")
+            elif "invalid gemini api key" in error_detail.lower(): # NEW: Handle invalid API key
+                st.error("⚠️ The provided Gemini API Key is invalid. Please check your key.")
+            else:
+                st.error(f"Signup failed: {error_detail}")
+            return False
         else:
             try:
                 error_detail = response.json().get('detail', 'Unknown error')
@@ -111,13 +112,14 @@ def signup(email: str, username: str, password: str) -> bool:
             st.error(f"Signup failed: {error_detail}")
             return False
             
+    except requests.exceptions.ConnectionError:
+        st.error("🚫 Could not connect to the backend API. Please ensure the backend is running.")
+        return False
     except Exception as e:
-        print(f"Full signup error: {str(e)}")  # Debug print
+        print(f"Full signup error: {str(e)}")
         st.error(f"Signup error: {str(e)}")
         return False
 
-
-# Authentication functions
 
 def logout():
     """Clear authentication data from session state"""
@@ -144,7 +146,6 @@ def authenticated_request(method, endpoint, **kwargs):
     try:
         response = method(f"{API_URL}{endpoint}", **kwargs)
         print(f"API request to {endpoint}: status={response.status_code}")
-        # Always return the response, even for 400 errors
         if response.status_code == 401:
             st.error("Session expired. Please log in again.")
             logout()
@@ -154,8 +155,6 @@ def authenticated_request(method, endpoint, **kwargs):
         print(f"Error in API request to {endpoint}: {str(e)}")
         st.error(f"API request failed: {str(e)}")
         return None
-
-
 
 
 # Existing functions modified to use authenticated requests
@@ -178,22 +177,17 @@ def get_documents() -> List[Dict]:
     return st.session_state.documents_cache
 
 
-
-
-
 def upload_document(file) -> Optional[Dict]:
     """Upload a document with authentication"""
     try:
         files = {"file": (file.name, file, file.type)}
         response = authenticated_request(requests.post, "/upload", files=files)
         
-        # Debug: print the actual response
         print(f"Upload response status: {response.status_code if response else 'No response'}")
         print(f"Upload response headers: {response.headers if response else 'No response'}")
         print(f"Upload response content: {response.text if response else 'No response'}")
         
         if response and response.status_code in (200, 201):
-            # Debug: print the JSON response
             try:
                 print(f"Upload response JSON: {response.json()}")
             except Exception as e:
@@ -202,11 +196,9 @@ def upload_document(file) -> Optional[Dict]:
         elif response:
             print(f"Upload failed with status code: {response.status_code}")
             print(f"Response content: {response.text}")
-            # Try to extract 'detail' from JSON error response
             try:
                 error_json = response.json()
                 if isinstance(error_json, dict):
-                    # Handle duplicate document case
                     if "duplicate" in response.text.lower() or "already exists" in response.text.lower():
                         return {
                             "detail": f"File '{file.name}' can't be uploaded as it's a duplicate of an existing document"
@@ -229,11 +221,8 @@ def upload_document(file) -> Optional[Dict]:
         return {"detail": str(e)}
 
 
-
-
 def summarize_document(document_id: str) -> Optional[Dict]:
     """Summarize a document with authentication"""
-    # First get the document details to get the filename
     documents = get_documents()
     document = next((doc for doc in documents if doc['id'] == document_id), None)
     
@@ -241,7 +230,6 @@ def summarize_document(document_id: str) -> Optional[Dict]:
         print(f"Document with ID {document_id} not found")
         return None
     
-    # Now summarize using the filename instead of ID
     print(f"Attempting to summarize document: {document['filename']}")
     
     response = authenticated_request(requests.post, f"/summarize/{document['filename']}")
@@ -252,7 +240,6 @@ def summarize_document(document_id: str) -> Optional[Dict]:
         print(f"Summarize failed with status code: {response.status_code}")
         print(f"Response content: {response.text}")
         
-        # Handle specific error cases
         if response.status_code == 403:
             return {
                 "summary": "Error: You don't have permission to summarize this document.",
@@ -263,6 +250,11 @@ def summarize_document(document_id: str) -> Optional[Dict]:
                 "summary": "Error: Document not found. It may have been deleted.",
                 "error": True
             }
+        elif response.status_code == 400 and "gemini api key not found" in response.text.lower():
+            return {
+                "summary": "Error: Your Gemini API key is missing or invalid. Please ensure it is provided during signup.",
+                "error": True
+            }
         else:
             return {
                 "summary": f"Error: Failed to summarize document (Status: {response.status_code})",
@@ -271,11 +263,8 @@ def summarize_document(document_id: str) -> Optional[Dict]:
     return None
 
 
-
-
 def vectorize_document(document_id: str) -> Optional[Dict]:
     """Vectorize a document with authentication"""
-    # First get the document details to get the filename
     documents = get_documents()
     document = next((doc for doc in documents if doc['id'] == document_id), None)
     
@@ -283,7 +272,6 @@ def vectorize_document(document_id: str) -> Optional[Dict]:
         print(f"Document with ID {document_id} not found")
         return None
     
-    # Now vectorize using the filename
     print(f"Attempting to vectorize document: {document['filename']}")
     print(f"Document path: {document.get('path', 'Path not available')}")
     
@@ -297,8 +285,6 @@ def vectorize_document(document_id: str) -> Optional[Dict]:
     return None
 
 
-
-
 def ask_question(document_id: str, question: str) -> Optional[Dict]:
     print(f"Making request to ask endpoint for document ID: {document_id}")
     print(f"Question: {question}")
@@ -310,19 +296,17 @@ def ask_question(document_id: str, question: str) -> Optional[Dict]:
         print(f"Document with ID {document_id} not found")
         return None
     
-    print(f"Found document: {document}")  # Add this line
+    print(f"Found document: {document}")
     
     data = {
         "filename": document['filename'],
         "question": question
     }
     
-    # Print full request details
     print(f"Full request URL: {API_URL}/ask")
     print(f"Request headers: Authorization: Bearer {st.session_state.token[:10]}...")
     print(f"Request data: {data}")
     
-    # Make the request with explicit content type
     response = authenticated_request(
         requests.post, 
         "/ask", 
@@ -337,14 +321,15 @@ def ask_question(document_id: str, question: str) -> Optional[Dict]:
             return response.json()
         elif response.status_code == 404:
             print("Document not found in database. Check if filename matches exactly.")
+        elif response.status_code == 400 and "gemini api key not found" in response.text.lower():
+            st.error("⚠️ Your Gemini API key is missing or invalid. Please ensure it is provided during signup.")
+        else:
+            st.error(f"❌ Failed to get answer: {response.json().get('detail', 'Unknown error')}")
     return None
-
-
 
 
 def delete_document(document_id: str) -> bool:
     """Delete a document with authentication"""
-    # First get the document details to get the filename
     documents = get_documents()
     document = next((doc for doc in documents if doc['id'] == document_id), None)
     
@@ -352,7 +337,6 @@ def delete_document(document_id: str) -> bool:
         print(f"Document with ID {document_id} not found")
         return False
     
-    # Now delete using the filename and document_id to ensure folder cleanup
     response = authenticated_request(
         requests.delete, 
         f"/documents/{document['filename']}?document_id={document_id}"
@@ -364,11 +348,3 @@ def delete_document(document_id: str) -> bool:
     else:
         print(f"Failed to delete document: {response.text if response else 'No response'}")
         return False
-
-
-
-
-
-
-
-

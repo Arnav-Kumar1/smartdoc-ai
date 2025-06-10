@@ -26,11 +26,16 @@ Rules:
 - Be precise and concise.
 """)
 
-def get_llm() -> Any:
+def get_llm(api_key: str) -> Any:
+    """
+    Initializes and returns a ChatGoogleGenerativeAI instance with the provided API key.
+    """
+    if not api_key:
+        raise ValueError("API key must be provided to initialize the LLM.")
     return ChatGoogleGenerativeAI(
         model="gemini-1.5-flash-latest",
         temperature=0.3,
-        google_api_key=os.getenv("GEMINI_API_KEY")
+        google_api_key=api_key # Use the provided api_key
     )
 
 def build_qa_chain(llm, context: str) -> RetrievalQA:

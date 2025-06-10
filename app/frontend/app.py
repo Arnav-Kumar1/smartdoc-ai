@@ -34,7 +34,7 @@ if "force_refresh" not in st.session_state:
     st.session_state.force_refresh = False
 
 # UI Components
-# Add at the very top, after imports
+
 st.set_page_config(
     page_title="SmartDoc AI",
     page_icon="🤖",
@@ -44,12 +44,15 @@ st.set_page_config(
 
 # Then continue with your existing code...
 def load_css():
-    with open("styles.css") as f:
-        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
-
-def load_css():
-    with open('app/frontend/styles.css') as f:
-        st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+    """Loads custom CSS for styling the Streamlit app."""
+    # Ensure styles.css is in the correct path or make it accessible
+    try:
+        with open('app/frontend/styles.css') as f: # Assuming styles.css is in the same directory as app.py
+            st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+    except FileNotFoundError:
+        st.warning("styles.css not found. App will run without custom styling.")
+    except Exception as e:
+        st.error(f"Error loading CSS: {e}")
 
 
 def render_login_page():
@@ -82,7 +85,7 @@ def render_login_page():
 
 
 def render_signup_page():
-    """Render the signup page"""
+    """Render the signup page, now with Gemini API Key input."""
     st.markdown('<h1 class="main-header">🤖 SmartDoc AI</h1>', unsafe_allow_html=True)
     
     col1, col2, col3 = st.columns([1, 2, 1])
@@ -93,15 +96,22 @@ def render_signup_page():
             username = st.text_input("👤 Username")
             password = st.text_input("🔑 Password", type="password")
             confirm_password = st.text_input("🔄 Confirm Password", type="password")
+            # NEW: Input for Gemini API Key
+            gemini_api_key = st.text_input(
+                "🔑 Gemini API Key", 
+                type="password", 
+                help="Your personal Gemini API key. Get it from Google AI Studio: https://makersuite.google.com/app/apikey"
+            )
             submit = st.form_submit_button("Sign Up", use_container_width=True)
             
             if submit:
                 if password != confirm_password:
-                    st.error("⚠️ Passwords do not match")
-                elif not email or not username or not password:
-                    st.error("⚠️ All fields are required")
+                    st.error("⚠️ Passwords do not match.")
+                elif not email or not username or not password or not gemini_api_key: # NEW: check for gemini_api_key
+                    st.error("⚠️ All fields, including Gemini API Key, are required.")
                 else:
-                    if signup(email, username, password):
+                    # NEW: Pass gemini_api_key to the signup function
+                    if signup(email, username, password, gemini_api_key):
                         st.session_state.current_page = "login"
                         st.rerun()
         
@@ -109,6 +119,7 @@ def render_signup_page():
         if st.button("🔐 Already have an account? Log in", use_container_width=True):
             st.session_state.current_page = "login"
             st.rerun()
+
 
 
 
@@ -289,12 +300,7 @@ def render_main_app():
                                         st.success("✅ Summary generated!")
                                         st.session_state.force_refresh = True
                                         st.rerun()  # Add this back but with cache refresh
-                                        st.markdown("""
-                                            <div class="summary-container">
-                                                <h4>📝 Document Summary</h4>
-                                                {}
-                                            </div>
-                                        """.format(result.get('summary')), unsafe_allow_html=True)
+                                        
                     
                 # Export summary button (remains inside expander, but outside columns)
                 if has_summary:

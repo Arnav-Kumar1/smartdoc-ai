@@ -31,7 +31,7 @@ class HierarchicalSummarizer:
         chunk_overlap: int = 400,
         max_retries: int = 3,
         retry_delay: int = 2,
-        api_key: Optional[str] = None
+        api_key: Optional[str] = None # MODIFIED: api_key is now a required parameter
     ):
         """
         Initialize the hierarchical summarizer.
@@ -52,10 +52,9 @@ class HierarchicalSummarizer:
         self.max_retries = max_retries
         self.retry_delay = retry_delay
         
-        # Initialize the LLM
-        api_key = api_key or os.getenv("GEMINI_API_KEY")
+        # MODIFIED: Ensure API key is provided and use it directly
         if not api_key:
-            raise ValueError("Gemini API key not found. Please provide it or set GEMINI_API_KEY environment variable.")
+            raise ValueError("Gemini API key must be provided for HierarchicalSummarizer.")
         
         self.llm = ChatGoogleGenerativeAI(
             model=model_name,

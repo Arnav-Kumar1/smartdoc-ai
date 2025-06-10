@@ -13,11 +13,13 @@ class User(SQLModel, table=True):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     is_active: bool = Field(default=True)
     is_admin: bool = Field(default=False, sa_column=Column(Boolean, default=False))
+    gemini_api_key: Optional[str] = Field(default=None)
 
 class UserCreate(SQLModel):
     email: str
     username: str
     password: str
+    gemini_api_key: str
 
 class UserLogin(SQLModel):
     email: str
