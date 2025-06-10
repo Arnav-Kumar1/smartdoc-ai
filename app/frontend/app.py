@@ -96,7 +96,18 @@ def render_signup_page():
             username = st.text_input("👤 Username")
             password = st.text_input("🔑 Password", type="password")
             confirm_password = st.text_input("🔄 Confirm Password", type="password")
-            # NEW: Input for Gemini API Key
+
+            # --- MODIFIED SECTION FOR GEMINI API KEY INSTRUCTIONS ---
+            st.info(
+                """
+                **How to get your Gemini API Key:**
+                1. Go to Google AI Studio at https://makersuite.google.com/app/apikey
+                2. If prompted, sign in with your Google account.
+                3. Click on **'Create API Key'** or select an existing one.
+                4. Copy the generated API key and paste it below.
+                """
+            )
+            #  Input for Gemini API Key
             gemini_api_key = st.text_input(
                 "🔑 Gemini API Key", 
                 type="password", 
