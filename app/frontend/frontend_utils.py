@@ -352,7 +352,7 @@ def delete_document(document_id: str) -> bool:
 
 # ... (after error_boundary or other utility functions) ...
 
-def wait_for_backend(timeout=15, interval=5):
+def wait_for_backend(timeout=60, interval=3):
     """
     Pings the backend service until it responds successfully or a timeout is reached.
     Uses a more generous timeout and interval for free-tier cold starts.

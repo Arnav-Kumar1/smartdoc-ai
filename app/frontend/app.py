@@ -2,8 +2,7 @@ import streamlit as st
 from datetime import datetime, timezone
 import pytz  # You'll need to add pytz to requirements.txt
 from frontend_utils import *
-import time
-import requests
+
 
 from contextlib import contextmanager
 
@@ -74,7 +73,7 @@ def render_login_page():
             
             if submit:
                # --- MODIFIED: Use the new wait_for_backend function ---
-                with st.spinner("Railway backend waking up, please wait... This may take up to a minute."):
+                with st.spinner("Backend waking up, please wait... This may take up to a minute."):
                     if not wait_for_backend(): # Wait up to 10 seconds (default in function)
                         st.error("Backend did not wake up in time. Please try again shortly or check server status.")
                         st.stop() # Stop further execution if backend is not responsive
@@ -130,7 +129,7 @@ def render_signup_page():
                 else:
 
                     # --- MODIFIED: Use the new wait_for_backend function ---
-                    with st.spinner("Railway backend waking up, please wait... This may take up to a minute."):
+                    with st.spinner("Backend waking up, please wait... This may take up to a minute."):
                         if not wait_for_backend(): # Wait up to 60 seconds (default in function)
                             st.error("Backend did not wake up in time. Please try again shortly or check server status.")
                             st.stop() # Stop further execution if backend is not responsive
@@ -145,9 +144,6 @@ def render_signup_page():
         if st.button("🔐 Already have an account? Log in", use_container_width=True):
             st.session_state.current_page = "login"
             st.rerun()
-
-
-
 
 
 
