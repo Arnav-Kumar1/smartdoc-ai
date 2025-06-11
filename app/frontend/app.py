@@ -2,6 +2,7 @@ import streamlit as st
 from datetime import datetime, timezone
 import pytz  # You'll need to add pytz to requirements.txt
 from frontend_utils import *
+import time
 
 
 from contextlib import contextmanager
@@ -72,6 +73,9 @@ def render_login_page():
             submit = st.form_submit_button("Login", use_container_width=True)
             
             if submit:
+                # Add a 10-second wait for backend to wake up 
+                with st.spinner("Railway Deployed Backend waking up, please wait... (This will take around 10 seconds)"):
+                    time.sleep(10) # Wait for 10 seconds
                 if login(email, password):
                     st.session_state.current_page = "main"
                     st.rerun()
@@ -123,6 +127,11 @@ def render_signup_page():
                 else:
                     # NEW: Pass gemini_api_key to the signup function
                     if signup(email, username, password, gemini_api_key):
+
+                        # Add a 10-second wait for backend to wake up 
+                        with st.spinner("Backend waking up, please wait... (This will take around 10 seconds)"):
+                            time.sleep(10) # Wait for 10 seconds
+                        
                         st.session_state.current_page = "login"
                         st.rerun()
         
