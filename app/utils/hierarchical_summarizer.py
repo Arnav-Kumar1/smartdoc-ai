@@ -27,7 +27,7 @@ class HierarchicalSummarizer:
         self,
         model_name: str = "gemini-1.5-flash-latest",
         temperature: float = 0.1,
-        max_tokens_per_chunk: int = 4000,
+        max_tokens_per_chunk: int = 50000,
         chunk_overlap: int = 400,
         max_retries: int = 3,
         retry_delay: int = 2,
