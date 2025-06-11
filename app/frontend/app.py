@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 import pytz  # You'll need to add pytz to requirements.txt
 from frontend_utils import *
 import time
-
+import requests
 
 from contextlib import contextmanager
 
@@ -73,9 +73,12 @@ def render_login_page():
             submit = st.form_submit_button("Login", use_container_width=True)
             
             if submit:
-                # Add a 10-second wait for backend to wake up 
-                with st.spinner("Railway Deployed Backend waking up, please wait... (This will take around 10 seconds)"):
-                    time.sleep(10) # Wait for 10 seconds
+               # --- MODIFIED: Use the new wait_for_backend function ---
+                with st.spinner("Railway backend waking up, please wait... This may take up to a minute."):
+                    if not wait_for_backend(): # Wait up to 10 seconds (default in function)
+                        st.error("Backend did not wake up in time. Please try again shortly or check server status.")
+                        st.stop() # Stop further execution if backend is not responsive
+                # --- END MODIFIED ---
                 if login(email, password):
                     st.session_state.current_page = "main"
                     st.rerun()
@@ -125,13 +128,16 @@ def render_signup_page():
                 elif not email or not username or not password or not gemini_api_key: # NEW: check for gemini_api_key
                     st.error("⚠️ All fields, including Gemini API Key, are required.")
                 else:
-                    # NEW: Pass gemini_api_key to the signup function
-                    if signup(email, username, password, gemini_api_key):
 
-                        # Add a 10-second wait for backend to wake up 
-                        with st.spinner("Backend waking up, please wait... (This will take around 10 seconds)"):
-                            time.sleep(10) # Wait for 10 seconds
-                        
+                    # --- MODIFIED: Use the new wait_for_backend function ---
+                    with st.spinner("Railway backend waking up, please wait... This may take up to a minute."):
+                        if not wait_for_backend(): # Wait up to 60 seconds (default in function)
+                            st.error("Backend did not wake up in time. Please try again shortly or check server status.")
+                            st.stop() # Stop further execution if backend is not responsive
+                    # --- END MODIFIED ---
+
+                    # NEW: Pass gemini_api_key to the signup function
+                    if signup(email, username, password, gemini_api_key):  
                         st.session_state.current_page = "login"
                         st.rerun()
         
