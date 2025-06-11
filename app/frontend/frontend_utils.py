@@ -361,7 +361,7 @@ def wait_for_backend(timeout=15, interval=5):
     while time.time() - start_time < timeout:
         try:
             # Attempt to hit a lightweight backend endpoint (e.g., the root '/')
-            response = requests.get(BACKEND_BASE_URL, timeout=5) # Small timeout for each ping attempt
+            response = requests.get(API_URL, timeout=5) # Small timeout for each ping attempt
             if response.status_code == 200:
                 return True # Backend is awake and responsive
         except requests.exceptions.ConnectionError:
