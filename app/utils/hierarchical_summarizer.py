@@ -26,9 +26,9 @@ class HierarchicalSummarizer:
     def __init__(
         self,
         model_name: str = "gemini-1.5-flash-latest",
-        temperature: float = 0.1,
+        temperature: float = 0.4,
         max_tokens_per_chunk: int = 50000,
-        chunk_overlap: int = 400,
+        chunk_overlap: int = 2000,
         max_retries: int = 3,
         retry_delay: int = 2,
         api_key: Optional[str] = None # MODIFIED: api_key is now a required parameter
