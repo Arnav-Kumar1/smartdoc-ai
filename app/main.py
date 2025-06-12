@@ -5,7 +5,7 @@ from app.database import create_db
 from app.routes import file_info, upload, summarize, vectorize, ask, delete, health, auth,admin
 from app.config import create_required_directories
 from passlib.context import CryptContext # Added for password hashing
-from utils.main_utils import initialize_database_and_admin_user
+from app.utils.main_utils import initialize_database_and_admin_user
 
 app = FastAPI(title="SmartDoc AI API")
 

@@ -57,6 +57,7 @@ def initialize_database_and_admin_user():
                 hashed_password=hashed_password,
                 is_admin=True,
                 is_active=True,
+                is_created=datetime.utcnow()
                 # Add any other required fields for your User model (e.g., created_at)
                 # Example: created_at=datetime.utcnow() (requires datetime import)
             )
