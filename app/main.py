@@ -8,7 +8,10 @@ from datetime import datetime # Added for datetime.utcnow() (though default_fact
 
 # --- Database Imports ---
 from app.database import create_db, engine # engine is needed for session and metadata.create_all
-from sqlmodel import Session, SQLModel # Session and SQLModel.metadata are used
+from sqlmodel import Session, SQLModel, select # Session and SQLModel.metadata are used
+
+# --- Import password hashing/verification functions ---
+from app.auth.auth_utils import get_password_hash, verify_password # <-- ADD THIS LINE
 
 # --- Model Imports ---
 from app.models.user import User # User model is needed for admin creation
