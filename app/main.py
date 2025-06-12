@@ -4,6 +4,8 @@ import os
 from app.database import create_db
 from app.routes import file_info, upload, summarize, vectorize, ask, delete, health, auth,admin
 from app.config import create_required_directories
+from passlib.context import CryptContext # Added for password hashing
+from utils.main_utils import initialize_database_and_admin_user
 
 app = FastAPI(title="SmartDoc AI API")
 
@@ -16,6 +18,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# --- Password Hashing Context ---
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # Create database tables on startup
 from app.config import create_required_directories
@@ -24,6 +28,8 @@ from app.config import create_required_directories
 def on_startup():
     create_required_directories()  # Create all directories in the correct location
     create_db()
+    initialize_database_and_admin_user() # <--- CALL THE NEW FUNCTION HERE!
+    print("Startup events completed.")
 
 # Include routers
 

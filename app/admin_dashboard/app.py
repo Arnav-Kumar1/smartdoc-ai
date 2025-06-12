@@ -7,7 +7,7 @@ import time
 st.set_page_config(page_title="Admin Dashboard - SmartDoc AI", layout="wide")
 st.title("🛠 Admin Dashboard - SmartDoc AI")
 
-API_URL = os.getenv("API_URL", "http://localhost:8502")
+API_URL = os.getenv("API_URL", "http://localhost:8000")
 
 st.sidebar.header("Navigation")
 page = st.sidebar.radio("Go to", ["📄 Documents", "👤 Users"])
@@ -308,7 +308,7 @@ elif page == "👤 Users":
                 "Email": user['email'],
                 "Role": '👑 Admin' if bool(int(user.get('is_admin', 0))) else '👤 User',
                 "Created": user.get('created_at'),
-                "Status": '✅ Active' if bool(int(user.get('is_active', 0))) else '❌ Inactive'
+                "Status": '✅ Active' if bool(int(user.get('is_active', 0))) else '❌ Inactive',
             })
         
         st.dataframe(
