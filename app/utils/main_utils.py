@@ -1,6 +1,7 @@
 import time
 from app.models.user import User
 import os
+from app.config import DB_DIR
 
 def get_password_hash(password: str) -> str:
     """Hashes a plaintext password."""
