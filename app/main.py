@@ -46,9 +46,10 @@ def initialize_database_and_admin_user():
     os.makedirs(DB_DIR, exist_ok=True) # Ensure DB directory exists
     print(f"Ensured database directory '{DB_DIR}' exists.")
 
-    admin_email = os.getenv("ADMIN_EMAIL", "arnav9637@gmail.com")
-    admin_username = os.getenv("ADMIN_USERNAME", "Initial Admin")
+    admin_email = os.getenv("ADMIN_EMAIL")
     admin_raw_password = os.getenv("ADMIN_PASSWORD")
+    admin_username = os.getenv("ADMIN_USERNAME")
+    admin_gemini_api_key = os.getenv("GOOGLE_API_KEY") # NEW LINE
 
     if not admin_raw_password:
         print("WARNING: ADMIN_PASSWORD environment variable not set. Admin user will not be created/updated.")
@@ -68,7 +69,8 @@ def initialize_database_and_admin_user():
                 hashed_password=hashed_password,
                 is_admin=True,
                 is_active=True,
-                created_at=datetime.utcnow() # Ensure created_at is handled correctly
+                created_at=datetime.utcnow(), # Ensure created_at is handled correctly
+                gemini_api_key=None
             )
             db.add(new_admin)
             db.commit()
@@ -86,6 +88,11 @@ def initialize_database_and_admin_user():
                  print(f"Updating password for admin user '{admin_email}'.")
                  existing_admin.hashed_password = get_password_hash(admin_raw_password) # Use imported function
             
+            # NEW: Ensure Gemini API key is set for existing admin as well
+            if existing_admin.gemini_api_key != admin_gemini_api_key:
+                print(f"Updating Gemini API key for admin user '{admin_email}'.")
+                existing_admin.gemini_api_key = admin_gemini_api_key
+
             db.commit()
             db.refresh(existing_admin)
             print(f"Admin user '{admin_email}' state updated.")
