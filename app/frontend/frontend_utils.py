@@ -24,6 +24,19 @@ def export_summary_as_txt(summary: str, filename: str) -> str:
     return f"Summary for {filename}:\n\n{summary}"
 
 
+import streamlit as st
+import requests
+import os
+from dotenv import load_dotenv
+
+load_dotenv() # Ensure environment variables are loaded if not already
+
+# Assuming API_URL and DEBUG are defined elsewhere (e.g., in frontend_utils.py or config)
+# For demonstration, I'll define them here, but use your actual definitions.
+API_URL = os.getenv("API_URL", "http://localhost:8000") # Replace with your actual API URL
+DEBUG = os.getenv("DEBUG", "False").lower() == "true"
+
+
 def login(email: str, password: str) -> bool:
     """Authenticate user and store token in session state"""
     try:
@@ -52,14 +65,22 @@ def login(email: str, password: str) -> bool:
             return True
         elif response.status_code == 401:
             error_detail = response.json().get("detail", "").lower()
-            if "user not found" in error_detail or "incorrect email" in error_detail:
-                st.error("Account not found. Please sign up first.")
+            
+            if "gemini api key is missing" in error_detail:
+                st.error("Gemini API key is missing. Please update your profile with a valid key.")
+            elif "your gemini api key is invalid" in error_detail:
+                st.error("Your Gemini API key is invalid. Please update your key or contact support.")
+            elif "incorrect email or password" in error_detail or "user not found" in error_detail:
+                st.error("Invalid email or password. Please check your credentials or sign up.")
             else:
-                st.error("Invalid email or password")
+                st.error(f"Login failed: {response.json().get('detail', 'Unknown error')}")
             return False
         else:
             st.error(f"Login failed: {response.json().get('detail', 'Unknown error')}")
             return False
+    except requests.exceptions.ConnectionError:
+        st.error("Could not connect to the API. Please ensure the backend is running.")
+        return False
     except Exception as e:
         st.error(f"Login error: {str(e)}")
         return False
