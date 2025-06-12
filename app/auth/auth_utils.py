@@ -9,12 +9,25 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Password hashing
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 
 # JWT settings
-SECRET_KEY = os.getenv("SECRET_KEY", "55ee5456661a1ab712a2127c51528800f02d356d9455c59952c341f58cb8164c")
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+SECRET_KEY = os.getenv("SECRET_KEY")
+if not SECRET_KEY:
+    raise ValueError("SECRET_KEY environment variable is not set. This is critical for security!")
+
+ALGORITHM = os.getenv("ALGORITHM")
+if not ALGORITHM:
+    raise ValueError("ALGORITHM environment variable is not set.")
+
+raw_access_token_expire_minutes = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")
+if not raw_access_token_expire_minutes:
+    raise ValueError("ACCESS_TOKEN_EXPIRE_MINUTES environment variable is not set.")
+
+try:
+    ACCESS_TOKEN_EXPIRE_MINUTES = int(raw_access_token_expire_minutes)
+except ValueError:
+    raise ValueError("ACCESS_TOKEN_EXPIRE_MINUTES must be an integer.")
 
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)

@@ -4,7 +4,6 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import os
 import time
-from passlib.context import CryptContext
 from datetime import datetime # Added for datetime.utcnow() (though default_factory handles creation time)
 
 # --- Database Imports ---
@@ -31,63 +30,42 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --- Password Hashing Context ---
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-def get_password_hash(password: str) -> str:
-    """Hashes a plaintext password."""
-    return pwd_context.hash(password)
 
 # --- Function to initialize database and admin user (Moved from main_utils.py) ---
 def initialize_database_and_admin_user():
     print("Attempting to initialize database and admin user...")
 
-    # Sleep briefly to ensure file system mounts are stable (optional, but can help)
-    time.sleep(5) 
+    time.sleep(5) # Optional, but can help with file system stability
 
-    # Construct the full path to your SQLite database file
-    db_file_name = "database.db" # <--- Corrected database file name to match app/database.py
+    db_file_name = "smartdoc.db"
     db_full_path = os.path.join(DB_DIR, db_file_name)
     
-    # Ensure the database directory exists (redundant if create_required_directories runs first, but safe)
-    os.makedirs(DB_DIR, exist_ok=True)
+    os.makedirs(DB_DIR, exist_ok=True) # Ensure DB directory exists
     print(f"Ensured database directory '{DB_DIR}' exists.")
 
-    db_file_exists = os.path.exists(db_full_path)
+    admin_email = os.getenv("ADMIN_EMAIL", "arnav9637@gmail.com")
+    admin_username = os.getenv("ADMIN_USERNAME", "Initial Admin")
+    admin_raw_password = os.getenv("ADMIN_PASSWORD")
 
-    if not db_file_exists:
-        print(f"Database file '{db_full_path}' not found. Creating schema.")
-        try:
-            # Corrected: Use SQLModel.metadata.create_all as per your database.py
-            SQLModel.metadata.create_all(bind=engine) 
-            print("Database tables created successfully.")
-        except Exception as e:
-            print(f"Error creating database tables: {e}")
-            raise
+    if not admin_raw_password:
+        print("WARNING: ADMIN_PASSWORD environment variable not set. Admin user will not be created/updated.")
+        print("Please set ADMIN_PASSWORD in your Railway variables.")
+        return
 
-    # Corrected: Use Session(engine) to get a session
-    with Session(engine) as db: 
-        admin_email = os.getenv("ADMIN_EMAIL")
-        admin_raw_password = os.getenv("ADMIN_PASSWORD")
-
-        if not admin_email or not admin_raw_password:
-            print("WARNING: ADMIN_EMAIL or ADMIN_PASSWORD environment variables not set. Skipping admin user initialization.")
-            print("Please ensure these are set in your .env file or deployment environment.")
-            return
-
+    with Session(engine) as db:
         print(f"Checking for admin user with email: {admin_email}")
-        existing_admin = db.query(User).filter(User.email == admin_email).first()
+        existing_admin = db.exec(select(User).where(User.email == admin_email)).first()
 
         if not existing_admin:
             print(f"Admin user '{admin_email}' not found. Creating new admin user.")
-            hashed_password = get_password_hash(admin_raw_password)
+            hashed_password = get_password_hash(admin_raw_password) # Use imported function
             new_admin = User(
-                username="Initial Admin",
                 email=admin_email,
+                username=admin_username,
                 hashed_password=hashed_password,
                 is_admin=True,
                 is_active=True,
-                # 'created_at' is handled by its default_factory in the User model, no need to set here
+                created_at=datetime.utcnow() # Ensure created_at is handled correctly
             )
             db.add(new_admin)
             db.commit()
@@ -100,9 +78,10 @@ def initialize_database_and_admin_user():
                 existing_admin.is_admin = True
                 print(f"User '{admin_email}' granted admin privileges.")
             
-            if not pwd_context.verify(admin_raw_password, existing_admin.hashed_password):
+            # Check if password needs to be updated using the imported verify_password
+            if not verify_password(admin_raw_password, existing_admin.hashed_password):
                  print(f"Updating password for admin user '{admin_email}'.")
-                 existing_admin.hashed_password = get_password_hash(admin_raw_password)
+                 existing_admin.hashed_password = get_password_hash(admin_raw_password) # Use imported function
             
             db.commit()
             db.refresh(existing_admin)
