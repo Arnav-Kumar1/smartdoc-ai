@@ -172,24 +172,40 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     """
     # Case insensitive email lookup
     normalized_email = form_data.username.lower()
+
+    # --- ADD THESE DEBUG PRINTS HERE ---
+    print(f"DEBUG AUTH: Login attempt for email: '{normalized_email}'")
+    # WARNING: Do NOT log raw passwords in production environments! This is for debugging only.
+    print(f"DEBUG AUTH: Frontend provided password (raw): '{form_data.password}'")
+    # --- END DEBUG PRINTS ---
+
     user = db.exec(select(User).where(User.email.ilike(f"{normalized_email}"))).first()
-    
+
     if not user:
+        print(f"DEBUG AUTH: User '{normalized_email}' NOT FOUND in database.") # Added debug print
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
     
+    # --- ADD THESE DEBUG PRINTS HERE ---
+    print(f"DEBUG AUTH: User '{user.email}' FOUND in database. Hashed password: '{user.hashed_password}'")
+    # --- END DEBUG PRINTS ---
+
     if not verify_password(form_data.password, user.hashed_password):
+        print(f"DEBUG AUTH: Password verification FAILED for user '{user.email}'.") # Added debug print
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
     
+    print(f"DEBUG AUTH: Password verification SUCCESS for user '{user.email}'.") # Added debug print
+
     # IMPORTANT FIX: Validate the user's stored Gemini API Key upon successful password verification
     if not user.gemini_api_key or user.gemini_api_key.strip() == "":
+        print(f"DEBUG AUTH: Gemini API key missing for user '{user.email}'.") # Added debug print
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Your Gemini API key is missing. Please update your profile or contact support.",
@@ -198,11 +214,14 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     
     # MODIFIED: Await the async validation function
     if not await validate_gemini_api_key(user.gemini_api_key):
+        print(f"DEBUG AUTH: Gemini API key validation FAILED for user '{user.email}'.") # Added debug print
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Your Gemini API key is invalid. Please update your key or contact support.",
             headers={"WWW-Authenticate": "Bearer"},
         )
+    print(f"DEBUG AUTH: Gemini API key validation SUCCESS for user '{user.email}'.") # Added debug print
+
 
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
