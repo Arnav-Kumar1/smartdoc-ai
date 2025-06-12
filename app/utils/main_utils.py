@@ -1,7 +1,19 @@
 import time
-from app.models.user import User
 import os
+from datetime import datetime # <--- ADD THIS IMPORT
+
+# --- Imports for database and password hashing ---
+from passlib.context import CryptContext # <--- ADD THIS IMPORT
+# Assuming these are defined in app/database.py:
+from app.database import Base, engine, SessionLocal # <--- ADD THIS IMPORT
+
+# Assuming your User model is in app/models/user.py as per your import:
+from app.models.user import User
+
 from app.config import DB_DIR
+
+# --- Initialize pwd_context here ---
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def get_password_hash(password: str) -> str:
     """Hashes a plaintext password."""
