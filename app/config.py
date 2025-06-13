@@ -15,7 +15,7 @@ BASE_DATA_DIR = os.path.join(os.getcwd(), 'data')
 # Subdirectories under data
 UPLOAD_DIR = os.path.join(BASE_DATA_DIR, 'uploaded_files')
 VECTOR_STORE_DIR = os.path.join(BASE_DATA_DIR, 'vector_store')
-DB_DIR = os.path.join(BASE_DATA_DIR, 'db')
+DB_DIR = os.path.join(BASE_DATA_DIR, 'Database') # this code will make a folder called 'Database' in the data folder
 
 # Create all required directories
 def create_required_directories():

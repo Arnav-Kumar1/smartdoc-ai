@@ -1,12 +1,8 @@
 from sqlmodel import create_engine, Session, SQLModel
-from .models.document import Document
 import os
-
+from app.config import DB_DIR
 # Ensure app/data/db directory exists
 # Change from app/data/db to data/db
-DB_DIR = os.path.join(os.getcwd(), 'data', 'db')
-os.makedirs(DB_DIR, exist_ok=True)
-
 
 SQLALCHEMY_DATABASE_URL = f"sqlite:///{os.path.join(DB_DIR, 'database.db')}"
 
