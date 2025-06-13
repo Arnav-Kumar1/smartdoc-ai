@@ -13,8 +13,8 @@ import os
 
 
 # API endpoint
-API_URL = "https://smartdoc-ai-production.up.railway.app"
-# API_URL = "http://localhost:8000" # use this for locally testing
+# API_URL = "https://smartdoc-ai-production.up.railway.app"
+API_URL = "http://localhost:8000" # use this for locally testing
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
 
@@ -56,13 +56,14 @@ def login(email: str, password: str) -> bool:
             return True
         elif response.status_code == 401:
             error_detail = response.json().get("detail", "").lower()
+            print("error detail : ", error_detail)
             
             if "gemini api key is missing" in error_detail:
                 st.error("Gemini API key is missing. Please update your profile with a valid key.")
             elif "your gemini api key is invalid" in error_detail:
                 st.error("Your Gemini API key is invalid. Please update your key or contact support.")
-            elif "incorrect email or password" in error_detail or "user not found" in error_detail:
-                st.error("Invalid email or password. Please check your credentials")
+            elif "incorrect email or password" in error_detail: 
+                st.error("Incorrect email or password.") 
             else:
                 st.error(f"Login failed: {response.json().get('detail', 'Unknown error')}")
             return False
@@ -77,7 +78,7 @@ def login(email: str, password: str) -> bool:
         return False
 
 
-# MODIFIED: signup function now accepts gemini_api_key
+
 def signup(email: str, username: str, password: str, gemini_api_key: str) -> bool:
     """Register a new user"""
     try:
