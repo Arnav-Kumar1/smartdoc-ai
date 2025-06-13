@@ -71,7 +71,7 @@ def login(email: str, password: str) -> bool:
             elif "your gemini api key is invalid" in error_detail:
                 st.error("Your Gemini API key is invalid. Please update your key or contact support.")
             elif "incorrect email or password" in error_detail or "user not found" in error_detail:
-                st.error("Invalid email or password. Please check your credentials or sign up.")
+                st.error("Invalid email or password. Please check your credentials")
             else:
                 st.error(f"Login failed: {response.json().get('detail', 'Unknown error')}")
             return False
