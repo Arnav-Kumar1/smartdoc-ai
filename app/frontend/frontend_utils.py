@@ -10,7 +10,6 @@ import streamlit as st
 import streamlit as st
 import requests
 import os
-from dotenv import load_dotenv
 
 
 # API endpoint
