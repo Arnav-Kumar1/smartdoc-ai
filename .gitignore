@@ -1,5 +1,6 @@
 smart_env
 .env
+debug.py
 data/
 .git/
 __pycache__/
