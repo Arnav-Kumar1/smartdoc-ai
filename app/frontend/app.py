@@ -75,7 +75,7 @@ def render_login_page():
                # --- MODIFIED: Use the new wait_for_backend function ---
                 with st.spinner("Backend waking up, please wait... This may take up to a minute."):
                     if not wait_for_backend(): # Wait up to 10 seconds (default in function)
-                        st.error("Backend did not wake up in time. Please try again shortly or check server status.")
+                        st.error("Backend did not wake up in time. Please reload the tab and try loggin in again")
                         st.stop() # Stop further execution if backend is not responsive
                 # --- END MODIFIED ---
                 if login(email, password):

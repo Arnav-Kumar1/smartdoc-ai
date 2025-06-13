@@ -7,11 +7,16 @@ import requests # Ensure requests is imported
 import time
 from typing import Dict, List, Optional
 import streamlit as st
+import streamlit as st
+import requests
+import os
+from dotenv import load_dotenv
+
 
 # API endpoint
 API_URL = "https://smartdoc-ai-production.up.railway.app"
 # API_URL = "http://localhost:8000" # use this for locally testing
-DEBUG = False  # Set to True during development
+DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
 
 @cache_data(ttl=300)
@@ -22,19 +27,6 @@ def export_summary_as_txt(summary: str, filename: str) -> str:
     txt_bytes.write(summary.encode("utf-8"))
     txt_bytes.seek(0)
     return f"Summary for {filename}:\n\n{summary}"
-
-
-import streamlit as st
-import requests
-import os
-from dotenv import load_dotenv
-
-load_dotenv() # Ensure environment variables are loaded if not already
-
-# Assuming API_URL and DEBUG are defined elsewhere (e.g., in frontend_utils.py or config)
-# For demonstration, I'll define them here, but use your actual definitions.
-API_URL = os.getenv("API_URL", "http://localhost:8000") # Replace with your actual API URL
-DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
 
 def login(email: str, password: str) -> bool:
