@@ -13,8 +13,7 @@ import os
 
 
 # API endpoint
-API_URL = "https://smartdoc-ai-production.up.railway.app"
-# API_URL = "http://localhost:8000" # use this for locally testing
+BACKEND_API_URL = os.getenv("BACKEND_API_URL")
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
 
@@ -35,7 +34,7 @@ def login(email: str, password: str) -> bool:
         normalized_email = email.lower() if email else ""
         
         response = requests.post(
-            f"{API_URL}/auth/token",
+            f"{BACKEND_API_URL}/auth/token",
             data={"username": normalized_email, "password": password},
         )
         
@@ -90,7 +89,7 @@ def signup(email: str, username: str, password: str, gemini_api_key: str) -> boo
         
         # CHANGED: Use the /auth/signup endpoint and pass gemini_api_key
         response = requests.post(
-            f"{API_URL}/auth/signup",
+            f"{BACKEND_API_URL}/auth/signup",
             json={
                 "email": normalized_email,
                 "username": username,
@@ -157,7 +156,7 @@ def authenticated_request(method, endpoint, **kwargs):
         kwargs["headers"] = headers
 
     try:
-        response = method(f"{API_URL}{endpoint}", **kwargs)
+        response = method(f"{BACKEND_API_URL}{endpoint}", **kwargs)
         print(f"API request to {endpoint}: status={response.status_code}")
         if response.status_code == 401:
             st.error("Session expired. Please log in again.")
@@ -316,7 +315,7 @@ def ask_question(document_id: str, question: str) -> Optional[Dict]:
         "question": question
     }
     
-    print(f"Full request URL: {API_URL}/ask")
+    print(f"Full request URL: {BACKEND_API_URL}/ask")
     print(f"Request headers: Authorization: Bearer {st.session_state.token[:10]}...")
     print(f"Request data: {data}")
     
@@ -374,7 +373,7 @@ def wait_for_backend(timeout=60, interval=3):
     while time.time() - start_time < timeout:
         try:
             # Attempt to hit a lightweight backend endpoint (e.g., the root '/')
-            response = requests.get(API_URL, timeout=5) # Small timeout for each ping attempt
+            response = requests.get(BACKEND_API_URL, timeout=5) # Small timeout for each ping attempt
             if response.status_code == 200:
                 return True # Backend is awake and responsive
         except requests.exceptions.ConnectionError:
