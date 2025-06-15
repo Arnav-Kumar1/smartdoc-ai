@@ -2,12 +2,13 @@ from sqlmodel import SQLModel, Field
 from datetime import datetime
 from typing import Optional
 from uuid import UUID, uuid4
-from pydantic import EmailStr
-from sqlalchemy import Boolean, Column
+from pydantic import EmailStr # Ensure this is imported
+from sqlalchemy import Boolean, Column, String # <--- Import String for explicit column type
 
 class User(SQLModel, table=True):
     id: UUID = Field(default_factory=uuid4, primary_key=True, index=True)
-    email: EmailStr = Field(unique=True, index=True)
+    # Corrected: Explicitly define sa_column for EmailStr
+    email: EmailStr = Field(unique=True, index=True, sa_column=Column(String, unique=True, index=True))
     username: str = Field(index=True)
     hashed_password: str
     created_at: datetime = Field(default_factory=datetime.utcnow)
