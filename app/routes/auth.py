@@ -15,10 +15,33 @@ from uuid import UUID
 from typing import Optional
 import google.generativeai as genai
 import os 
-import asyncio # NEW: Import asyncio for timeout handling
+import asyncio 
+import dns.resolver # NEW: Import dns.resolver for MX record lookup
+from dns.exception import DNSException # NEW: Import DNSException for error handling
 
 router = APIRouter()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
+
+# NEW: Function to check for MX records
+def is_valid_email_domain(email: str) -> bool:
+    """
+    Checks if the domain of an email address has MX records.
+    This helps verify if the domain is configured to receive emails.
+    """
+    try:
+        domain = email.split('@')[1]
+        # Attempt to resolve MX records for the domain
+        # If no MX records are found, it raises an NXDOMAIN exception or similar.
+        mx_records = dns.resolver.resolve(domain, 'MX')
+        return len(mx_records) > 0
+    except DNSException as e:
+        print(f"DNS lookup failed for domain {domain}: {e}")
+        return False
+    except IndexError: # email.split('@') might fail if no '@'
+        return False
+    except Exception as e:
+        print(f"An unexpected error occurred during domain check: {e}")
+        return False
 
 
 async def validate_gemini_api_key(api_key: str, timeout: int = 10) -> bool:
@@ -49,11 +72,8 @@ async def validate_gemini_api_key(api_key: str, timeout: int = 10) -> bool:
             print("  _perform_validation_sync: API key accepted, but no usable 'generateContent' models found.")
             return False
 
-        except GoogleAPIError as e:
-            print(f"  _perform_validation_sync: Gemini API key validation failed (GoogleAPIError): {e}")
-            return False
-        except Exception as e:
-            print(f"  _perform_validation_sync: Gemini API key validation failed (Unexpected Error): {type(e).__name__}: {e}")
+        except Exception as e: # Catch broad exception from genai.list_models() for API errors
+            print(f"  _perform_validation_sync: Gemini API key validation failed (GoogleAPIError/Unexpected Error): {type(e).__name__}: {e}")
             return False
         finally:
             if original_google_api_key_env:
@@ -106,8 +126,6 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
     return user
 
 @router.post("/signup", response_model=UserResponse)
-
-
 async def signup(user: UserCreate, db: Session = Depends(get_db)):
     """
     Registers a new user, validates their provided Gemini API key,
@@ -125,15 +143,23 @@ async def signup(user: UserCreate, db: Session = Depends(get_db)):
             detail="Email already registered"
         )
     
+    # NEW: Perform MX record check after EmailStr (Pydantic) validation
+    if not is_valid_email_domain(normalized_email):
+        print(f"Email domain validation failed for: {normalized_email}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid email domain. Please use a valid email address with existing mail servers."
+        )
+
     # IMPORTANT FIX: Ensure API key is validated BEFORE creating the user
     # This prevents storing invalid keys and allowing signup with them.
     if not user.gemini_api_key or user.gemini_api_key.strip() == "":
-        print("invalid")
+        print("Gemini API Key is empty.")
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Gemini API Key cannot be empty.")
 
     # MODIFIED: Await the async validation function
     if not await validate_gemini_api_key(user.gemini_api_key):
-        print("invalid")
+        print("Invalid Gemini API Key.")
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid Gemini API Key provided. Please check your key.")
 
     # Create new user with normalized email

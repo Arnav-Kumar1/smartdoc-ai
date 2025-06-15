@@ -7,8 +7,8 @@ from sqlalchemy import Boolean, Column, String # <--- Import String for explicit
 
 class User(SQLModel, table=True):
     id: UUID = Field(default_factory=uuid4, primary_key=True, index=True)
-    # Corrected: Explicitly define sa_column for EmailStr
-    email: EmailStr = Field(unique=True, index=True, sa_column=Column(String, unique=True, index=True))
+    # Corrected: unique=True and index=True moved into Column, removed from Field
+    email: EmailStr = Field(sa_column=Column(String, unique=True, index=True))
     username: str = Field(index=True)
     hashed_password: str
     created_at: datetime = Field(default_factory=datetime.utcnow)
