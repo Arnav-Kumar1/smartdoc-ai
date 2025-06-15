@@ -12,8 +12,8 @@ import os
 
 
 # API endpoint
-# BACKEND_API_URL = os.getenv('BACKEND_API_URL')
-BACKEND_API_URL = "http://localhost:8000" # use this for locally testing
+BACKEND_API_URL = os.getenv('BACKEND_API_URL')
+# BACKEND_API_URL = "http://localhost:8000" # use this for locally testing
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
 
