@@ -187,7 +187,48 @@ def render_main_app():
         if st.button("🚪 Logout", use_container_width=True):
             logout()
             st.rerun()
-    
+
+        if not st.session_state.get('is_admin', False): # Assumes is_admin is set in session state upon login
+            st.markdown("---")
+            st.markdown('<h3 style="color: #FF6347;">⚠️ Danger Zone</h3>', unsafe_allow_html=True)
+            
+            # Ensure confirm_delete_account is initialized for this section
+            if 'confirm_delete_account' not in st.session_state:
+                st.session_state.confirm_delete_account = False
+
+            if st.button("🗑️ Delete My Account", use_container_width=True, type="secondary", help="Permanently delete your account and all associated data."):
+                st.session_state.confirm_delete_account = True 
+                # This reruns the app, and the conditional block below will be visible
+
+            if st.session_state.get('confirm_delete_account', False):
+                st.warning("Are you absolutely sure you want to delete your account? This action is irreversible and will delete all your documents and data. Type 'DELETE' to confirm.")
+                
+                # Use a unique key for the text input to avoid conflicts if reruns happen
+                confirm_text = st.text_input("Type 'DELETE' to confirm", key="confirm_delete_input_user_app") 
+                
+                col_confirm_del, col_cancel_del = st.columns(2)
+                with col_confirm_del:
+                    if st.button("Confirm Permanent Deletion", key="final_confirm_delete_btn_user_app", type="primary", use_container_width=True):
+                        if confirm_text == 'DELETE':
+                            with st.spinner("Deleting your account... This may take a moment."):
+                                # Call the delete_my_account function from frontend_utils
+                                if delete_my_account(): 
+                                    st.success("Your account has been successfully deleted. Redirecting to login.")
+                                    time.sleep(2)
+                                    logout() # Log out and clear session state
+                                    st.rerun()
+                                else:
+                                    st.error("Failed to delete your account. Please try again.")
+                        else:
+                            st.error("You must type 'DELETE' exactly to confirm.")
+                with col_cancel_del:
+                    if st.button("Cancel", key="cancel_delete_btn_user_app", use_container_width=True):
+                        st.session_state.confirm_delete_account = False
+                        # Clear the text input's value by resetting its session state key
+                        if "confirm_delete_input_user_app" in st.session_state:
+                            st.session_state["confirm_delete_input_user_app"] = ""
+                        st.rerun()
+        
     # Only one tab now: My Documents
     st.markdown('<h2 class="sub-header">📚 My Documents</h2>', unsafe_allow_html=True)
     documents = get_documents()

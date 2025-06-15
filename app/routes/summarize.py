@@ -118,8 +118,7 @@ def summarize_file(filename: str, db: Session = Depends(get_db), current_user: U
             f"this size is calculated *after* removing all formatting (like layout, fonts, or embedded elements), "
             f"leaving only the raw text content.\n\n"
             f"For reference, {MAX_DOC_SIZE_KB}KB of raw text represents a very large amount of content "
-            f"and typically corresponds to over five-hundreds pages of plain text at Times New Roman, 12 pt). Please try uploading a smaller document, or "
-            f"contact us if you need support processing large files."
+            f"and typically corresponds to over five-hundreds pages of plain text at Times New Roman, 12 pt). Please try uploading a smaller document"
         )
 
         document.summary = placeholder_summary

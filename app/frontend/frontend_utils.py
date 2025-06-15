@@ -12,8 +12,8 @@ import os
 
 
 # API endpoint
-BACKEND_API_URL = os.getenv('BACKEND_API_URL')
-# BACKEND_API_URL = "http://localhost:8000" # use this for locally testing
+# BACKEND_API_URL = os.getenv('BACKEND_API_URL')
+BACKEND_API_URL = "http://localhost:8000" # use this for locally testing
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
 
@@ -425,6 +425,52 @@ def delete_document(document_id: str) -> bool:
             st.error(f"Failed to delete document: {response.json().get('detail', 'Unknown error')}")
 
         return False
+
+
+def delete_my_account() -> bool:
+    """
+    Deletes the current user's account and all associated data.
+    Requires authentication token from session state.
+    """
+    print(f"Attempting to delete account for user ID: {st.session_state.user_id}")
+    
+    response = authenticated_request(
+        requests.delete, 
+        f"/delete/my-account", # New endpoint to be created in backend
+        headers={"Content-Type": "application/json"}
+    )
+    
+    if response and response.status_code == 200:
+        st.success("✅ Your account and all associated data have been successfully deleted!")
+        print(f"Account for user ID {st.session_state.user_id} deleted successfully.")
+        # Clear specific session state keys related to the account
+        st.session_state.pop('authenticated', None)
+        st.session_state.pop('user_id', None)
+        st.session_state.pop('username', None)
+        st.session_state.pop('token', None)
+        st.session_state.pop('documents_cache', None)
+        st.session_state.pop('last_refresh', None)
+        st.session_state.pop('force_refresh', None)
+        st.session_state.pop('confirm_delete_account', None)
+        if 'chat_history' in st.session_state: # Clear chat history if it exists
+             st.session_state.pop('chat_history', None)
+        
+        # Clear all cached data related to documents and users that might be
+        # associated with this deleted user, though `logout` should also handle this.
+        # It's good practice to ensure everything is clean.
+        # This will clear all data cached by @st.cache_data in this script.
+        st.cache_data.clear() 
+
+        return True
+    elif response:
+        error_detail = response.json().get('detail', 'Unknown error during account deletion.')
+        st.error(f"❌ Failed to delete account: {error_detail}")
+        print(f"Account deletion failed: {response.status_code} - {error_detail}")
+        return False
+    else:
+        st.error("❌ An unexpected error occurred while trying to delete your account.")
+        return False
+
 
 
 def wait_for_backend(timeout=60, interval=3):
