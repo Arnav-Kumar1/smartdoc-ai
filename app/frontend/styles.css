@@ -1,252 +1,252 @@
 /* styles.css - Inspired by CRED.club aesthetic */
 
 :root {
-  --cred-dark-bg: #0F172A; /* Very dark background, similar to CRED's deep navy/black */
-  --cred-card-bg: #1E293B; /* Slightly lighter dark for cards and containers */
-  --cred-accent-purple: #9333ea; /* A vibrant purple for highlights */
-  --cred-accent-blue: #3b82f6;  /* A bright blue, often used in gradients */
-  --cred-text-light: #F8FAFC;   /* Near-white for primary text */
-  --cred-text-secondary: #94A3B8; /* Muted light gray for secondary text */
-  --cred-success: #16A34A; /* Green for success messages */
-  --cred-danger: #EF4444;  /* Red for danger/errors */
-  --cred-border-radius-lg: 16px; /* Larger rounded corners for cards */
-  --cred-border-radius-md: 10px; /* Medium rounded corners for buttons/inputs */
-  --cred-transition: all 0.3s ease-in-out; /* Smooth transitions */
+    --cred-dark-bg: #0F172A; /* Very dark background, similar to CRED's deep navy/black */
+    --cred-card-bg: #1E293B; /* Slightly lighter dark for cards and containers */
+    --cred-accent-purple: #9333ea; /* A vibrant purple for highlights */
+    --cred-accent-blue: #3b82f6;  /* A bright blue, often used in gradients */
+    --cred-text-light: #F8FAFC;   /* Near-white for primary text */
+    --cred-text-secondary: #94A3B8; /* Muted light gray for secondary text */
+    --cred-success: #16A34A; /* Green for success messages */
+    --cred-danger: #EF4444;  /* Red for danger/errors */
+    --cred-border-radius-lg: 16px; /* Larger rounded corners for cards */
+    --cred-border-radius-md: 10px; /* Medium rounded corners for buttons/inputs */
+    --cred-transition: all 0.3s ease-in-out; /* Smooth transitions */
 }
 
 /* Global Styles */
 body, .stApp {
-  background-color: var(--cred-dark-bg); /* Apply the deep dark background */
-  color: var(--cred-text-light); /* Light text on dark background */
-  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-  line-height: 1.6;
+    background-color: var(--cred-dark-bg); /* Apply the deep dark background */
+    color: var(--cred-text-light); /* Light text on dark background */
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+    line-height: 1.6;
 }
 
 /* Headers */
 h1, h2, h3, h4, h5, h6 {
-  color: var(--cred-text-light); /* Default to light text */
-  font-weight: 700;
-  margin-top: 1.5rem;
-  margin-bottom: 1rem;
-  letter-spacing: -0.02em;
+    color: var(--cred-text-light); /* Default to light text */
+    font-weight: 700;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    letter-spacing: -0.02em;
 }
 
 .stTitle { /* Targets Streamlit's default title */
-  font-size: 3rem;
-  font-weight: 800;
-  background: linear-gradient(90deg, var(--cred-accent-purple) 0%, var(--cred-accent-blue) 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent; /* Makes the gradient visible */
-  text-align: center;
-  margin: 2rem 0;
-  padding-bottom: 0.5rem;
+    font-size: 3rem;
+    font-weight: 800;
+    background: linear-gradient(90deg, var(--cred-accent-purple) 0%, var(--cred-accent-blue) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent; /* Makes the gradient visible */
+    text-align: center;
+    margin: 2rem 0;
+    padding-bottom: 0.5rem;
 }
 
 .stTitle::after {
-  content: '';
-  display: block;
-  width: 80px; /* Shorter accent line */
-  height: 3px;
-  background: var(--cred-accent-blue);
-  margin: 0.5rem auto 0; /* Center the line */
-  border-radius: 2px;
+    content: '';
+    display: block;
+    width: 80px; /* Shorter accent line */
+    height: 3px;
+    background: var(--cred-accent-blue);
+    margin: 0.5rem auto 0; /* Center the line */
+    border-radius: 2px;
 }
 
 /* Streamlit specific components (containers, buttons, inputs) */
 .stContainer, .stAlert, .stText, .stMarkdown, 
 .stTextInput>div, .stTextArea>div, .stFileUploader>section, .stSelectbox>div, .stMultiSelect>div {
-  background-color: var(--cred-card-bg); /* Dark card background */
-  border-radius: var(--cred-border-radius-lg); /* Large rounded corners */
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3); /* Pronounced shadow for depth */
-  border: none; /* No visible borders */
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  transition: var(--cred-transition);
+    background-color: var(--cred-card-bg); /* Dark card background */
+    border-radius: var(--cred-border-radius-lg); /* Large rounded corners */
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3); /* Pronounced shadow for depth */
+    border: none; /* No visible borders */
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    transition: var(--cred-transition);
 }
 
 /* Specific styling for info/warning/success boxes for better visibility on dark theme */
 div.stAlert {
-  border-left: 5px solid;
-  padding: 1rem;
+    border-left: 5px solid;
+    padding: 1rem;
 }
 div.stAlert.streamlit-container-red { /* For st.error */
-  border-color: var(--cred-danger);
-  background-color: rgba(239, 68, 68, 0.2); /* Semi-transparent red */
-  color: var(--cred-danger);
+    border-color: var(--cred-danger);
+    background-color: rgba(239, 68, 68, 0.2); /* Semi-transparent red */
+    color: var(--cred-danger);
 }
 div.stAlert.streamlit-container-green { /* For st.success */
-  border-color: var(--cred-success);
-  background-color: rgba(16, 179, 129, 0.2); /* Semi-transparent green */
-  color: var(--cred-success);
+    border-color: var(--cred-success);
+    background-color: rgba(16, 179, 129, 0.2); /* Semi-transparent green */
+    color: var(--cred-success);
 }
 div.stAlert.streamlit-container-blue { /* For st.info */
-  border-color: var(--cred-accent-blue);
-  background-color: rgba(59, 130, 246, 0.2); /* Semi-transparent blue */
-  color: var(--cred-accent-blue);
+    border-color: var(--cred-accent-blue);
+    background-color: rgba(59, 130, 246, 0.2); /* Semi-transparent blue */
+    color: var(--cred-accent-blue);
 }
 div.stAlert.streamlit-container-orange { /* For st.warning */
-  border-color: #f59e0b; /* Amber */
-  background-color: rgba(245, 158, 11, 0.2); /* Semi-transparent amber */
-  color: #f59e0b;
+    border-color: #f59e0b; /* Amber */
+    background-color: rgba(245, 158, 11, 0.2); /* Semi-transparent amber */
+    color: #f59e0b;
 }
 
 
 /* Buttons */
 .stButton>button {
-  background: linear-gradient(90deg, var(--cred-accent-purple) 0%, var(--cred-accent-blue) 100%);
-  color: white;
-  padding: 0.8rem 1.8rem;
-  border-radius: var(--cred-border-radius-md);
-  border: none;
-  font-weight: 600;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-  transition: var(--cred-transition);
-  cursor: pointer;
+    background: linear-gradient(90deg, var(--cred-accent-purple) 0%, var(--cred-accent-blue) 100%);
+    color: white;
+    padding: 0.8rem 1.8rem;
+    border-radius: var(--cred-border-radius-md);
+    border: none;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: var(--cred-transition);
+    cursor: pointer;
 }
 
 .stButton>button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-  opacity: 0.9;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    opacity: 0.9;
 }
 
 /* Primary buttons (e.g., Delete/Confirm, often red) */
 .stButton>button[data-testid="stFormSubmitButton"] {
-  /* Styles specific to submit buttons if needed, otherwise default to above */
+    /* Styles specific to submit buttons if needed, otherwise default to above */
 }
 
 /* Danger buttons (if explicitly typed "primary" in Streamlit) */
 .stButton>button[data-baseweb="button"] { /* Target all Streamlit buttons */
-  /* Override for 'primary' type if it's meant to be danger-red */
-  background: linear-gradient(90deg, var(--cred-danger) 0%, #dc2626 100%) !important;
-  border: none !important;
+    /* Override for 'primary' type if it's meant to be danger-red */
+    background: linear-gradient(90deg, var(--cred-danger) 0%, #dc2626 100%) !important;
+    border: none !important;
 }
 
 
 /* Text Inputs */
 .stTextInput>div>div>input, .stTextArea>div>div>textarea {
-  background-color: var(--cred-card-bg) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important; /* Subtle border */
-  border-radius: var(--cred-border-radius-md) !important;
-  color: var(--cred-text-light) !important;
-  padding: 0.75rem 1rem !important;
-  font-size: 1rem;
-  transition: var(--cred-transition);
+    background-color: var(--cred-card-bg) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important; /* Subtle border */
+    border-radius: var(--cred-border-radius-md) !important;
+    color: var(--cred-text-light) !important;
+    padding: 0.75rem 1rem !important;
+    font-size: 1rem;
+    transition: var(--cred-transition);
 }
 
 .stTextInput>div>div>input:focus, .stTextArea>div>div>textarea:focus {
-  border-color: var(--cred-accent-blue) !important;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4) !important;
-  outline: none !important;
+    border-color: var(--cred-accent-blue) !important;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4) !important;
+    outline: none !important;
 }
 
 
 /* Sidebar */
 .css-1d391kg { /* Targets the sidebar background */
-  background-color: var(--cred-card-bg) !important;
-  border-right: 1px solid rgba(255, 255, 255, 0.05) !important; /* Subtle separator */
-  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+    background-color: var(--cred-card-bg) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.05) !important; /* Subtle separator */
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
 }
 
 /* Sidebar radio buttons/navigation */
 .stRadio > label {
-  color: var(--cred-text-secondary);
+    color: var(--cred-text-secondary);
 }
 .stRadio > label:has(input:checked) {
-  color: var(--cred-text-light);
-  font-weight: 600;
+    color: var(--cred-text-light);
+    font-weight: 600;
 }
 .stRadio > label:has(input:checked) .css-1aumxtk { /* Specific target for Streamlit radio button selected dot */
-  background-color: var(--cred-accent-blue) !important;
-  border-color: var(--cred-accent-blue) !important;
+    background-color: var(--cred-accent-blue) !important;
+    border-color: var(--cred-accent-blue) !important;
 }
 
 
 /* Expander (for documents) */
 .streamlit-expanderContent {
-  background-color: var(--cred-card-bg); /* Ensure content background matches */
-  border-radius: var(--cred-border-radius-lg);
-  padding: 1.5rem;
+    background-color: var(--cred-card-bg); /* Ensure content background matches */
+    border-radius: var(--cred-border-radius-lg);
+    padding: 1.5rem;
 }
 
 .streamlit-expanderHeader {
-  background-color: var(--cred-card-bg);
-  border-radius: var(--cred-border-radius-lg);
-  padding: 1rem 1.5rem;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-  margin-bottom: 1rem;
-  transition: var(--cred-transition);
+    background-color: var(--cred-card-bg);
+    border-radius: var(--cred-border-radius-lg);
+    padding: 1rem 1.5rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    margin-bottom: 1rem;
+    transition: var(--cred-transition);
 }
 .streamlit-expanderHeader:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
 }
 
 /* Table (dataframe) styling */
 .stDataFrame {
-  border-radius: var(--cred-border-radius-lg);
-  overflow: hidden; /* Ensures rounded corners on content */
+    border-radius: var(--cred-border-radius-lg);
+    overflow: hidden; /* Ensures rounded corners on content */
 }
 .stDataFrame > div > div > div > div > div {
-  background-color: var(--cred-card-bg); /* Cells background */
-  color: var(--cred-text-light);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05); /* Subtle cell separator */
+    background-color: var(--cred-card-bg); /* Cells background */
+    color: var(--cred-text-light);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05); /* Subtle cell separator */
 }
 .stDataFrame > div > div > div > div > div.css-vk325g { /* Header row */
-  background-color: var(--cred-dark-bg); /* Darker header for tables */
-  color: var(--cred-text-secondary);
-  font-weight: 600;
+    background-color: var(--cred-dark-bg); /* Darker header for tables */
+    color: var(--cred-text-secondary);
+    font-weight: 600;
 }
 
 
 /* Chat messages specific styling */
 .stChatMessage {
-  padding: 1rem;
-  border-radius: var(--cred-border-radius-md);
-  margin-bottom: 0.75rem;
+    padding: 1rem;
+    border-radius: var(--cred-border-radius-md);
+    margin-bottom: 0.75rem;
 }
 
 .stChatMessage [data-testid="stChatMessageContent"] {
-  padding: 0.75rem 1rem;
-  border-radius: var(--cred-border-radius-md);
-  color: var(--cred-text-light);
+    padding: 0.75rem 1rem;
+    border-radius: var(--cred-border-radius-md);
+    color: var(--cred-text-light);
 }
 
 .stChatMessage.st-chat-message-user {
-  background-color: var(--cred-accent-blue); /* User message bubble */
-  align-self: flex-end;
-  border-bottom-right-radius: 5px; /* Tighter corner for user message */
+    background-color: var(--cred-accent-blue); /* User message bubble */
+    align-self: flex-end;
+    border-bottom-right-radius: 5px; /* Tighter corner for user message */
 }
 .stChatMessage.st-chat-message-assistant {
-  background-color: var(--cred-card-bg); /* AI message bubble */
-  align-self: flex-start;
-  border-bottom-left-radius: 5px; /* Tighter corner for AI message */
+    background-color: var(--cred-card-bg); /* AI message bubble */
+    align-self: flex-start;
+    border-bottom-left-radius: 5px; /* Tighter corner for AI message */
 }
 
 /* Metrics */
 div[data-testid="stMetric"] {
-  background-color: var(--cred-card-bg);
-  border-radius: var(--cred-border-radius-lg);
-  padding: 1.5rem;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-  text-align: center;
+    background-color: var(--cred-card-bg);
+    border-radius: var(--cred-border-radius-lg);
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    text-align: center;
 }
 div[data-testid="stMetric"] label {
-  color: var(--cred-text-secondary);
-  font-size: 1.1em;
-  font-weight: 500;
+    color: var(--cred-text-secondary);
+    font-size: 1.1em;
+    font-weight: 500;
 }
 div[data-testid="stMetric"] .css-1n74gkb { /* Metric value text */
-  font-size: 2.5em;
-  font-weight: 700;
-  color: var(--cred-accent-purple); /* Metric values in accent color */
+    font-size: 2.5em;
+    font-weight: 700;
+    color: var(--cred-accent-purple); /* Metric values in accent color */
 }
 
 /* Plotly charts to blend with background */
 .js-plotly-plot .plotly .main-svg {
-  background-color: transparent !important;
+    background-color: transparent !important;
 }
 .js-plotly-plot {
-  background-color: transparent !important;
+    background-color: transparent !important;
 }
