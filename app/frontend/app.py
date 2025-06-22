@@ -187,7 +187,11 @@ def render_main_app():
                     else:
                         st.error("❌ Upload failed. Please check the console for details.")
         # --- End Upload UI in Sidebar ---
-
+    
+        if st.button("🚪 Logout", use_container_width=True):
+            logout()
+            st.rerun()
+        
         # --- Author Credit Section ---
         st.markdown("---")
         st.markdown(f"""
@@ -199,11 +203,6 @@ def render_main_app():
                 </a>
             </div>
         """, unsafe_allow_html=True)
-    
-
-        if st.button("🚪 Logout", use_container_width=True):
-            logout()
-            st.rerun()
 
         if not st.session_state.get('is_admin', False): # Assumes is_admin is set in session state upon login
             st.markdown("---")
