@@ -32,6 +32,10 @@ if "last_refresh" not in st.session_state:
     st.session_state.last_refresh = 0
 if "force_refresh" not in st.session_state:
     st.session_state.force_refresh = False
+if "author_name" not in st.session_state:
+    st.session_state.author_name = os.getenv("APP_AUTHOR_NAME") # Default if not set
+if "author_email" not in st.session_state:
+    st.session_state.author_email = os.getenv("APP_AUTHOR_EMAIL") # Default if not set
 
 # UI Components
 
@@ -183,6 +187,19 @@ def render_main_app():
                     else:
                         st.error("❌ Upload failed. Please check the console for details.")
         # --- End Upload UI in Sidebar ---
+
+        # --- Author Credit Section ---
+        st.markdown("---")
+        st.markdown(f"""
+            <div style="padding: 1rem; border-radius: 0.5rem; text-align: center; font-size: 0.9em; color: var(--text-secondary);">
+                Made with ❤️ by <br>
+                <strong>{st.session_state.author_name}</strong><br>
+                <a href="mailto:{st.session_state.author_email}" style="color: var(--accent); text-decoration: none;">
+                    {st.session_state.author_email}
+                </a>
+            </div>
+        """, unsafe_allow_html=True)
+    
 
         if st.button("🚪 Logout", use_container_width=True):
             logout()
