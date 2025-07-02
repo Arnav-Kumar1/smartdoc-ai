@@ -114,9 +114,7 @@ AWS Elastic Beanstalk
 Docker
 
 Docker Example
-bash
-Copy
-Edit
+
 docker build -t smartdoc-ai .
 docker run -p 8501:8501 -p 8000:8000 smartdoc-ai
 🤝 Contributing
@@ -124,21 +122,15 @@ Fork the repository
 
 Create a new branch:
 
-bash
-Copy
-Edit
+
 git checkout -b feature/YourFeature
 Commit your changes:
 
-bash
-Copy
-Edit
+
 git commit -m "Add YourFeature"
 Push to the branch:
 
-bash
-Copy
-Edit
+
 git push origin feature/YourFeature
 Open a Pull Request
 
