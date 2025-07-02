@@ -46,42 +46,39 @@ SmartDoc AI is a Retrieval-Augmented Generation (RAG) tool designed to extract, 
 ```bash
 git clone https://github.com/yourusername/smartdoc-ai.git
 cd smartdoc-ai
-Create virtual environment
+```
+2. Create virtual environment
 
-bash
-Copy
-Edit
+```bash
 python -m venv smartdoc-ai_env
 source smartdoc-ai_env/bin/activate  # On Windows: venv\Scripts\activate
-Install dependencies
-
-bash
-Copy
-Edit
+```
+3. Install dependencies
+```bash
 pip install -r requirements.txt
-Create and configure your .env file
+```
 
-ini
-Copy
-Edit
+4.Create and configure your .env file
+
+
 GOOGLE_API_KEY=your_key_here
 ADMIN_EMAIL=admin@example.com
 ADMIN_USERNAME=admin
 ADMIN_PASSWORD=securepassword
+
 🧑‍💻 Usage
 Start the Backend
-bash
-Copy
-Edit
+```bash
 uvicorn app.main:app --reload
+```
 Start the Frontend
-bash
-Copy
-Edit
+```bash
 streamlit run app/app.py
+```
 Visit http://localhost:8501 in your browser.
 
 ⚙️ Configuration Variables
+
 Variable	Description	Default
 GOOGLE_API_KEY	Gemini LLM API key	Required
 ADMIN_EMAIL	Admin email	Required
@@ -115,24 +112,14 @@ Docker
 
 Docker Example
 
+```bash
 docker build -t smartdoc-ai .
+```
+
+```bash
 docker run -p 8501:8501 -p 8000:8000 smartdoc-ai
-🤝 Contributing
-Fork the repository
+```
 
-Create a new branch:
-
-
-git checkout -b feature/YourFeature
-Commit your changes:
-
-
-git commit -m "Add YourFeature"
-Push to the branch:
-
-
-git push origin feature/YourFeature
-Open a Pull Request
 
 📜 License
 This project is licensed under the MIT License. See the LICENSE file for details.
