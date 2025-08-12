@@ -1,7 +1,7 @@
 # SmartDoc AI 🧠📄  
 **A Document Intelligence Platform with RAG-powered Q&A, Summarization, and Admin Control**
 
-SmartDoc AI is a Retrieval-Augmented Generation (RAG) tool designed to extract, summarize, and intelligently answer questions from your documents—all while ensuring minimal hallucination and complete local control.
+SmartDoc AI is a Retrieval-Augmented Generation (RAG) tool designed to extract, summarize, and intelligently answer questions from your documents all while ensuring Zero hallucination and complete local control.
 
 ---
 
